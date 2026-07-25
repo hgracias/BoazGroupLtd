@@ -1,0 +1,299 @@
+// Boaz Group Ltd — data model.
+//
+// The app currently runs on the mock repository in src/lib/data, so no
+// database is required to click through the whole product. This schema is
+// the target shape: point DATABASE_URL at Neon/Supabase, run
+// `npm run db:push`, and swap the repository implementation.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------- enums
+
+enum Role {
+  DRIVER
+  ADMIN
+}
+
+enum DutyStatus {
+  ON_DUTY
+  OFF_DUTY
+}
+
+enum TruckStatus {
+  ACTIVE
+  IN_MAINTENANCE
+  RETIRED
+}
+
+enum TripStatus {
+  PLANNED
+  IN_TRANSIT
+  AT_BORDER
+  DELIVERED
+  CANCELLED
+}
+
+enum MaintenanceType {
+  OIL_CHANGE
+  TIRES
+  BRAKES
+  GENERAL_SERVICE
+  REPAIR
+  INSPECTION
+}
+
+enum ExpenseCategory {
+  FUEL
+  TOLLS
+  BORDER_FEES
+  FOOD_LODGING
+  PARKING
+  REPAIRS
+  OTHER
+}
+
+enum Currency {
+  TZS
+  KES
+  RWF
+  BIF
+  UGX
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ShipmentStatus {
+  BOOKED
+  LOADED
+  IN_TRANSIT
+  AT_BORDER
+  CLEARED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  EXCEPTION
+}
+
+// ---------------------------------------------------------------- people
+
+model Driver {
+  id           String     @id @default(cuid())
+  employeeId   String     @unique // login identifier, e.g. BGL-0142
+  passwordHash String
+  role         Role       @default(DRIVER)
+  fullName     String
+  phone        String
+  whatsapp     String?
+  email        String?
+  licenseNumber String    @unique
+  licenseClass String?
+  licenseExpiry DateTime?
+  nationalId   String?
+  homeBase     String     @default("Dar es Salaam")
+  dutyStatus   DutyStatus @default(OFF_DUTY)
+  active       Boolean    @default(true)
+  joinedAt     DateTime   @default(now())
+  photoUrl     String?
+
+  assignedTruckId String?
+  assignedTruck   Truck?  @relation("AssignedDriver", fields: [assignedTruckId], references: [id])
+
+  clockRecords       ClockRecord[]
+  maintenanceRecords MaintenanceRecord[]
+  expenseReports     ExpenseReport[]
+  trips              Trip[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId])
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  employeeId   String   @unique
+  passwordHash String
+  role         Role     @default(ADMIN)
+  fullName     String
+  email        String   @unique
+  title        String?
+  createdAt    DateTime @default(now())
+
+  reviewedExpenses ExpenseReport[] @relation("ExpenseReviewer")
+}
+
+// ---------------------------------------------------------------- fleet
+
+model Truck {
+  id           String      @id @default(cuid())
+  plateNumber  String      @unique // e.g. T 123 ABC
+  make         String
+  model        String
+  year         Int
+  trailerType  String?
+  capacityTons Float?
+  odometerKm   Int         @default(0)
+  status       TruckStatus @default(ACTIVE)
+  nextServiceKm Int?
+  insuranceExpiry DateTime?
+
+  drivers            Driver[]            @relation("AssignedDriver")
+  maintenanceRecords MaintenanceRecord[]
+  trips              Trip[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------- operations
+
+model Trip {
+  id            String     @id @default(cuid())
+  reference     String     @unique // e.g. TRP-2026-0184
+  origin        String     @default("Dar es Salaam")
+  destination   String
+  corridorSlug  String // kenya | rwanda | uganda | burundi
+  borderPost    String?
+  cargoSummary  String?
+  status        TripStatus @default(PLANNED)
+  departedAt    DateTime?
+  expectedAt    DateTime?
+  deliveredAt   DateTime?
+
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id])
+  truckId  String
+  truck    Truck  @relation(fields: [truckId], references: [id])
+
+  clockRecords   ClockRecord[]
+  expenseReports ExpenseReport[]
+  shipments      Shipment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([driverId, status])
+}
+
+model ClockRecord {
+  id          String    @id @default(cuid())
+  clockInAt   DateTime
+  clockOutAt  DateTime?
+  clockInNote String?
+  clockOutNote String?
+  startOdometerKm Int?
+  endOdometerKm   Int?
+  locationIn  String?
+  locationOut String?
+
+  driverId String
+  driver   Driver  @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  tripId   String?
+  trip     Trip?   @relation(fields: [tripId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([driverId, clockInAt])
+}
+
+model MaintenanceRecord {
+  id           String          @id @default(cuid())
+  performedAt  DateTime
+  type         MaintenanceType
+  description  String
+  costAmount   Float
+  costCurrency Currency        @default(TZS)
+  odometerKm   Int
+  vendor       String?
+  receiptUrl   String? // uploaded receipt photo (local /uploads path for now)
+
+  truckId  String
+  truck    Truck  @relation(fields: [truckId], references: [id], onDelete: Cascade)
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([truckId, performedAt])
+  @@index([driverId, performedAt])
+}
+
+model ExpenseReport {
+  id          String          @id @default(cuid())
+  spentAt     DateTime
+  category    ExpenseCategory
+  description String
+  amount      Float
+  currency    Currency
+
+  // Multi-currency: the rate is captured at submission so historical
+  // totals never shift when rates move.
+  rateToTzs   Float
+  amountTzs   Float
+
+  receiptUrl  String?
+  status      ApprovalStatus @default(PENDING)
+  reviewNote  String?
+  reviewedAt  DateTime?
+
+  driverId   String
+  driver     Driver  @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  tripId     String?
+  trip       Trip?   @relation(fields: [tripId], references: [id])
+  reviewedById String?
+  reviewedBy   Admin? @relation("ExpenseReviewer", fields: [reviewedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([driverId, status])
+  @@index([status, spentAt])
+}
+
+// ---------------------------------------------------------------- public tracking
+
+model Shipment {
+  id            String         @id @default(cuid())
+  trackingRef   String         @unique // e.g. BGL-2026-0455
+  clientName    String
+  origin        String         @default("Dar es Salaam")
+  destination   String
+  corridorSlug  String
+  cargoSummary  String
+  weightKg      Float?
+  containerNo   String?
+  status        ShipmentStatus @default(BOOKED)
+  bookedAt      DateTime       @default(now())
+  etaAt         DateTime?
+  deliveredAt   DateTime?
+
+  tripId String?
+  trip   Trip?   @relation(fields: [tripId], references: [id])
+
+  events ShipmentEvent[]
+
+  @@index([trackingRef])
+}
+
+model ShipmentEvent {
+  id         String         @id @default(cuid())
+  occurredAt DateTime
+  status     ShipmentStatus
+  location   String
+  note       String?
+
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId, occurredAt])
+}

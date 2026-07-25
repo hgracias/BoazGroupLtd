@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 33% 99%;
+    --foreground: 234 52% 16%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 234 52% 16%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 234 52% 16%;
+
+    /* Brand navy #2B348C */
+    --primary: 234 53% 36%;
+    --primary-foreground: 40 33% 99%;
+
+    --secondary: 42 33% 94%;
+    --secondary-foreground: 234 52% 20%;
+
+    --muted: 40 20% 95%;
+    --muted-foreground: 233 14% 42%;
+
+    /* Brand gold #C9962E */
+    --accent: 40 63% 48%;
+    --accent-foreground: 234 52% 16%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 15% 88%;
+    --input: 40 15% 86%;
+    --ring: 234 53% 36%;
+
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04";
+  }
+
+  ::selection {
+    @apply bg-navy-600 text-white;
+  }
+
+  /* Visible focus for keyboard users across the whole app. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-gold-600;
+  }
+
+  .section {
+    @apply py-16 md:py-24;
+  }
+
+  /* Thin gold rule used as a section divider on the marketing site. */
+  .rule-gold {
+    @apply h-px w-12 bg-gold-500;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

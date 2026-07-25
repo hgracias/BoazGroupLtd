@@ -44,7 +44,7 @@ export function Hero() {
             <Reveal delay={0.1}>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/75">
                 We haul containerised and loose cargo out of Dar es Salaam to Kigali,
-                Nairobi, Bujumbura and Kampala — on our own trucks, with customs
+                Nairobi, Kampala, Goma and Bujumbura — on our own trucks, with customs
                 pre-lodged before the wheels turn.
               </p>
             </Reveal>
@@ -85,7 +85,7 @@ export function Hero() {
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm sm:p-8">
               <p className="eyebrow text-gold-400">Live corridors</p>
               <p className="mt-3 font-display text-2xl font-semibold text-white">
-                Four destination markets, one operations desk.
+                Five destination markets, one operations desk.
               </p>
               <ul className="mt-6 divide-y divide-white/10">
                 {corridors.map((corridor) => (

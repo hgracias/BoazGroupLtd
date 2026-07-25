@@ -23,8 +23,8 @@ export const milestones = [
   },
   {
     year: "2026",
-    title: "Four corridors, one desk",
-    body: "Serving Rwanda, Kenya, Burundi and Uganda on company-owned trucks.",
+    title: "Five corridors, one desk",
+    body: "Serving Rwanda, Kenya, Uganda, DR Congo and Burundi on company-owned trucks.",
   },
 ];
 
@@ -57,7 +57,7 @@ export const leadership = [
   {
     name: "Neema Shirima",
     role: "Operations Manager",
-    bio: "Runs the transit desk and the border escalation path across all four corridors.",
+    bio: "Runs the transit desk and the border escalation path across every corridor.",
     initials: "NS",
   },
   {

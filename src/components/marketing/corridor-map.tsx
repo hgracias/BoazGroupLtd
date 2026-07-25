@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 /* -------------------------------------------------------------------------
  * Projection: real lat/lng → SVG space, so the schematic keeps the true
- * geographic relationship between Dar es Salaam and the four destinations.
+ * geographic relationship between Dar es Salaam and each destination.
  * ---------------------------------------------------------------------- */
 
 const VIEW = { w: 900, h: 620 };
@@ -46,12 +46,15 @@ function borderIndex(corridor: Corridor) {
   return index === -1 ? corridor.waypoints.length - 2 : index;
 }
 
+// Rwanda is deliberately unlabelled: Kigali, Rusumo and the Goma leg all fall
+// inside ~80px here, and a country label in that corner collides with one of
+// them on every route. Those city labels already identify the territory.
 const countryLabels = [
   { name: "TANZANIA", lat: -6.4, lng: 34.6 },
   { name: "KENYA", lat: -0.4, lng: 38.4 },
   { name: "UGANDA", lat: 1.35, lng: 31.4 },
-  { name: "RWANDA", lat: -1.5, lng: 28.85 },
-  { name: "BURUNDI", lat: -4.4, lng: 29.9 },
+  { name: "BURUNDI", lat: -4.4, lng: 30.3 },
+  { name: "DR CONGO", lat: -4.6, lng: 28.65 },
 ];
 
 const lake = {
@@ -248,6 +251,13 @@ function ActiveRoute({
   const border = points[borderAt];
   const borderPoint: Point = corridor.waypoints[borderAt];
 
+  // Some crossings sit almost on top of their destination — the Grande
+  // Barrière is a few hundred metres from central Goma. Drawing both markers
+  // there produces an unreadable pile, so the border is named under the
+  // destination instead.
+  const borderHugsDestination =
+    Math.hypot(destination.x - border.x, destination.y - border.y) < 22;
+
   return (
     <g key={corridor.slug}>
       <path d={d} fill="none" stroke="#C9962E" strokeOpacity="0.18" strokeWidth="10" strokeLinecap="round" />
@@ -287,7 +297,7 @@ function ActiveRoute({
       })}
 
       {/* Border post */}
-      <g>
+      <g className={borderHugsDestination ? "hidden" : undefined}>
         <rect
           x={border.x - 7}
           y={border.y - 7}
@@ -343,6 +353,19 @@ function ActiveRoute({
       >
         {corridor.transitDays.toUpperCase()}
       </text>
+      {borderHugsDestination ? (
+        <text
+          // Nudged clear of the preceding stop's label, which sits close by
+          // when the crossing hugs the destination.
+          x={destination.x - 30}
+          y={destination.y + 26}
+          textAnchor="middle"
+          className="fill-white/60"
+          fontSize="11"
+        >
+          via {borderPoint.name}
+        </text>
+      ) : null}
     </g>
   );
 }

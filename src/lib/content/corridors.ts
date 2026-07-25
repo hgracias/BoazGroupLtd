@@ -1,5 +1,5 @@
 /**
- * The four cross-border corridors Boaz Group runs out of Dar es Salaam.
+ * The cross-border corridors Boaz Group runs out of Dar es Salaam.
  * Coordinates are real lat/lng — the route map projects them, so the
  * schematic keeps the true geographic relationship between the cities.
  */
@@ -110,6 +110,44 @@ export const corridors: Corridor[] = [
     ],
     cargo: ["Containerised imports", "Steel & cement", "Fuel-adjacent dry goods", "Retail goods"],
     departures: "2 – 3 per week",
+  },
+  {
+    slug: "drc",
+    country: "DR Congo",
+    countryCode: "CD",
+    flag: "🇨🇩",
+    destination: "Goma",
+    colorVar: "#8E94D0",
+    distanceKm: 1630,
+    transitDays: "5 – 7 days",
+    borderPost: "Grande Barrière (Rubavu – Goma)",
+    borderNote:
+      "The only corridor with two crossings: Rusumo into Rwanda under the EAC Single Customs Territory, then a separate DRC entry lodged with the DGDA at the Grande Barrière on the Rubavu–Goma line. We prepare both sets of paperwork before the truck leaves Dar es Salaam.",
+    altBorderPosts: [
+      "Rusumo OSBP — Tanzania to Rwanda leg",
+      "Petite Barrière — light and hand-carried cargo only",
+    ],
+    currency: "CDF",
+    summary:
+      "Central Corridor to Rusumo, then west through Kigali and Rubavu to the lakeside crossing into Goma. Rates and transit times are confirmed per load rather than published as a schedule, because North Kivu conditions move week to week.",
+    waypoints: [
+      { name: "Dar es Salaam", lat: -6.82, lng: 39.28 },
+      { name: "Morogoro", lat: -6.82, lng: 37.66 },
+      { name: "Dodoma", lat: -6.16, lng: 35.75 },
+      { name: "Singida", lat: -4.82, lng: 34.75 },
+      { name: "Nzega", lat: -4.22, lng: 33.18 },
+      { name: "Rusumo", lat: -2.38, lng: 30.79 },
+      { name: "Kigali", lat: -1.94, lng: 30.06 },
+      { name: "Grande Barrière", lat: -1.7, lng: 29.27 },
+      { name: "Goma", lat: -1.67, lng: 29.22 },
+    ],
+    cargo: [
+      "Containerised imports",
+      "Humanitarian & NGO consignments",
+      "Construction inputs",
+      "FMCG",
+    ],
+    departures: "On confirmed booking",
   },
   {
     slug: "burundi",

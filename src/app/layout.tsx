@@ -19,11 +19,11 @@ const sourceSerif = Source_Serif_4({
 export const metadata: Metadata = {
   metadataBase: new URL("https://boazigroup.com"),
   title: {
-    default: `${company.name} — Cross-Border Freight from Tanzania to the EAC`,
+    default: `${company.name} — Cross-Border Freight from Tanzania to the EAC & DRC`,
     template: `%s | ${company.name}`,
   },
   description:
-    "Cross-border road freight, customs clearance and warehousing from Dar es Salaam to Rwanda, Kenya, Burundi and Uganda.",
+    "Cross-border road freight, customs clearance and warehousing from Dar es Salaam to Rwanda, Kenya, Uganda, DR Congo and Burundi.",
   icons: { icon: "/brand/boaz-logo.jpg" },
 };
 

@@ -24,7 +24,7 @@ import { dateOnly, dateTime, shipmentStatusLabels } from "@/lib/format";
 export const metadata: Metadata = {
   title: "Track Shipment",
   description:
-    "Track a Boaz Group consignment from Dar es Salaam to Rwanda, Kenya, Burundi or Uganda using your BGL tracking reference.",
+    "Track a Boaz Group consignment from Dar es Salaam to Rwanda, Kenya, Uganda, DR Congo or Burundi using your BGL tracking reference.",
   alternates: { canonical: "/tracking" },
 };
 

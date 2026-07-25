@@ -21,7 +21,7 @@ import { corridors } from "@/lib/content/corridors";
 export const metadata: Metadata = {
   title: "Routes & Coverage",
   description:
-    "Cross-border corridors from Dar es Salaam to Kigali, Nairobi, Bujumbura and Kampala — border posts used, distances, transit times and departure frequency.",
+    "Cross-border corridors from Dar es Salaam to Kigali, Nairobi, Kampala, Goma and Bujumbura — border posts used, distances, transit times and departure frequency.",
   alternates: { canonical: "/routes" },
 };
 
@@ -31,7 +31,7 @@ export default function RoutesPage() {
       <PageHero
         breadcrumb="Routes & Coverage"
         eyebrow="Where we run"
-        title="Four corridors out of Dar es Salaam, worked daily."
+        title="Five corridors out of Dar es Salaam."
         description="Every route below is one we run ourselves, through border posts where we hold standing agent relationships. Transit times are realistic ranges from loading to delivery, not best-case marketing numbers."
       />
 

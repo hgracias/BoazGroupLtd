@@ -8,9 +8,9 @@ import { ServicesGrid } from "@/components/marketing/home/services-grid";
 import { StatsBand } from "@/components/marketing/home/stats-band";
 
 export const metadata: Metadata = {
-  title: "Cross-Border Freight from Tanzania to Rwanda, Kenya, Burundi & Uganda",
+  title: "Cross-Border Freight from Tanzania to the EAC & Eastern DRC",
   description:
-    "Boaz Group Ltd moves containerised and loose cargo from Dar es Salaam to Kigali, Nairobi, Bujumbura and Kampala — own fleet, licensed customs clearance, warehousing and transit monitoring.",
+    "Boaz Group Ltd moves containerised and loose cargo from Dar es Salaam to Kigali, Nairobi, Kampala, Goma and Bujumbura — own fleet, licensed customs clearance, warehousing and transit monitoring.",
   alternates: { canonical: "/" },
 };
 

@@ -17,7 +17,7 @@ export const services: Service[] = [
     icon: Truck,
     title: "Cross-Border Road Freight",
     short:
-      "Full-truck and part-load haulage from Dar es Salaam to Rwanda, Kenya, Burundi and Uganda.",
+      "Full-truck and part-load haulage from Dar es Salaam to Rwanda, Kenya, Uganda, DR Congo and Burundi.",
     description:
       "Our core business. We move containerised and loose cargo out of Dar es Salaam port and inland depots to consignees across the EAC, on our own fleet with our own drivers — no unvetted subcontracting. Every load is assigned a named transit controller who owns it from loading bay to final delivery note.",
     highlights: [
@@ -100,7 +100,7 @@ export const services: Service[] = [
     description:
       "We arrange goods-in-transit and marine extension cover through licensed Tanzanian underwriters so your consignment is protected across every border on the route, not just the first leg.",
     highlights: [
-      "Goods-in-transit cover across all four destination markets",
+      "Goods-in-transit cover across every destination market we serve",
       "Certificates issued before the truck leaves the yard",
       "Claims support with documented PODs and incident reports",
     ],

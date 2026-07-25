@@ -10,7 +10,7 @@ import { corridors } from "@/lib/content/corridors";
 export const metadata: Metadata = {
   title: "Get a Quote",
   description:
-    "Request a written cross-border freight rate from Dar es Salaam to Rwanda, Kenya, Burundi or Uganda — freight, duties and border fees broken out separately.",
+    "Request a written cross-border freight rate from Dar es Salaam to Rwanda, Kenya, Uganda, DR Congo or Burundi — freight, duties and border fees broken out separately.",
   alternates: { canonical: "/quote" },
 };
 

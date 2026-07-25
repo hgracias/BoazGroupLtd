@@ -53,7 +53,7 @@ export default function AboutPage() {
                 </p>
                 <p>
                   Six years on we run {stats[3].value} company-owned prime movers across
-                  four corridors, from a yard and warehouse in Vingunguti. It is a small
+                  five corridors, from a yard and warehouse in Vingunguti. It is a small
                   fleet on purpose: we still turn down loads we cannot deliver on time,
                   because that is cheaper than an apology.
                 </p>

@@ -61,7 +61,8 @@ export type MaintenanceValues = z.infer<typeof maintenanceSchema>;
 
 export const quoteStepOneSchema = z.object({
   originCity: z.string().min(2, "Select where the cargo is loading"),
-  destinationCountry: z.enum(["rwanda", "kenya", "uganda", "burundi", "other"], {
+  // Must stay in step with the corridor slugs in src/lib/content/corridors.ts.
+  destinationCountry: z.enum(["rwanda", "kenya", "uganda", "drc", "burundi", "other"], {
     errorMap: () => ({ message: "Select the destination country" }),
   }),
   destinationCity: z.string().min(2, "Enter the delivery city or town"),

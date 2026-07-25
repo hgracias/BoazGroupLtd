@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/driver/", "/admin/", "/api/"],
     },
-    sitemap: "https://boazgroup.co.tz/sitemap.xml",
+    sitemap: "https://boazigroup.com/sitemap.xml",
   };
 }

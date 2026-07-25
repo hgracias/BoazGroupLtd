@@ -17,7 +17,7 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://boazgroup.co.tz"),
+  metadataBase: new URL("https://boazigroup.com"),
   title: {
     default: `${company.name} — Cross-Border Freight from Tanzania to the EAC`,
     template: `%s | ${company.name}`,

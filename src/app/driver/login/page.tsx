@@ -71,7 +71,7 @@ export default function DriverLoginPage({
             className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-navy-900"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to boazgroup.co.tz
+            Back to boazigroup.com
           </Link>
 
           <div className="mt-8 flex items-center gap-3 lg:hidden">

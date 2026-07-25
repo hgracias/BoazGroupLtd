@@ -6,7 +6,6 @@ import { Hero } from "@/components/marketing/home/hero";
 import { HowItWorks } from "@/components/marketing/home/how-it-works";
 import { ServicesGrid } from "@/components/marketing/home/services-grid";
 import { StatsBand } from "@/components/marketing/home/stats-band";
-import { Testimonials } from "@/components/marketing/home/testimonials";
 
 export const metadata: Metadata = {
   title: "Cross-Border Freight from Tanzania to Rwanda, Kenya, Burundi & Uganda",
@@ -23,7 +22,6 @@ export default function HomePage() {
       <CorridorSection />
       <ServicesGrid />
       <HowItWorks />
-      <Testimonials />
       <CtaBanner />
     </>
   );

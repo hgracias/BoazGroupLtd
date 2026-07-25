@@ -32,7 +32,7 @@ export default function AdminLoginPage({
           className="inline-flex items-center gap-2 text-sm font-medium text-white/60 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to boazgroup.co.tz
+          Back to boazigroup.com
         </Link>
 
         <div className="mt-8 rounded-2xl border border-white/10 bg-white p-7 shadow-lift sm:p-9">

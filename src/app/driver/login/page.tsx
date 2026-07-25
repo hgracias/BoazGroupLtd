@@ -5,7 +5,7 @@ import { ArrowLeft, KeyRound, ShieldCheck } from "lucide-react";
 
 import { LoginForm } from "@/components/driver/login-form";
 import { company } from "@/lib/company";
-import { DEMO_DRIVER } from "@/lib/data/seed";
+import { demoAccountForDisplay } from "@/lib/demo-credentials";
 
 export const metadata: Metadata = {
   title: "Driver Sign In",
@@ -20,6 +20,9 @@ export default function DriverLoginPage({
   // Only allow internal paths back, never an absolute URL from the query.
   const raw = searchParams.callbackUrl ?? "/driver";
   const callbackUrl = raw.startsWith("/driver") ? raw : "/driver";
+
+  // Null in production — a deployed build never shows a working login.
+  const demo = demoAccountForDisplay("driver");
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
@@ -94,16 +97,18 @@ export default function DriverLoginPage({
             <LoginForm callbackUrl={callbackUrl} />
           </div>
 
-          <div className="mt-8 rounded-lg border border-dashed border-gold-300 bg-gold-50 p-4 text-sm">
-            <p className="font-semibold text-navy-900">Demo credentials (prototype data)</p>
-            <p className="mt-1 text-muted-foreground">
-              Employee ID <code className="font-semibold text-navy-800">{DEMO_DRIVER.employeeId}</code>{" "}
-              · Password <code className="font-semibold text-navy-800">{DEMO_DRIVER.password}</code>
-            </p>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Remove this panel once real driver accounts are loaded.
-            </p>
-          </div>
+          {demo ? (
+            <div className="mt-8 rounded-lg border border-dashed border-gold-300 bg-gold-50 p-4 text-sm">
+              <p className="font-semibold text-navy-900">Demo credentials (development only)</p>
+              <p className="mt-1 text-muted-foreground">
+                Employee ID <code className="font-semibold text-navy-800">{demo.employeeId}</code> ·
+                Password <code className="font-semibold text-navy-800">{demo.password}</code>
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Set in .env.local, or generated per session. Never shown in a production build.
+              </p>
+            </div>
+          ) : null}
 
           <p className="mt-8 text-sm text-muted-foreground">
             Operations staff:{" "}

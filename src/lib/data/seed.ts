@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 
 import { rateToTzs } from "@/lib/currency";
+import { demoPasswords } from "@/lib/demo-credentials";
 import type {
   Admin,
   ClockRecord,
@@ -11,15 +12,6 @@ import type {
   Trip,
   Truck,
 } from "@/lib/data/types";
-
-/**
- * Demo credentials (mock mode only — replace with real records once the
- * database is attached):
- *   Driver: BGL-0142 / driver123
- *   Admin:  ADM-001  / admin123
- */
-export const DEMO_DRIVER = { employeeId: "BGL-0142", password: "driver123" };
-export const DEMO_ADMIN = { employeeId: "ADM-001", password: "admin123" };
 
 const hash = (plain: string) => bcrypt.hashSync(plain, 10);
 
@@ -49,7 +41,10 @@ export type SeedData = {
 };
 
 export function createSeed(): SeedData {
-  const driverPassword = hash("driver123");
+  // Passwords come from the environment (or a random per-process value) —
+  // never from this file. See src/lib/demo-credentials.ts.
+  const passwords = demoPasswords();
+  const driverPassword = hash(passwords.driver);
 
   const trucks: Truck[] = [
     {
@@ -169,7 +164,7 @@ export function createSeed(): SeedData {
     {
       id: "adm_1",
       employeeId: "ADM-001",
-      passwordHash: hash("admin123"),
+      passwordHash: hash(passwords.admin),
       role: "ADMIN",
       fullName: "Neema Shirima",
       email: "n.shirima@boazigroup.com",

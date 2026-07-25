@@ -50,10 +50,19 @@ src/lib/data/                 Mock repository, seed data, lead capture
 
 Credentials auth (NextAuth, JWT sessions) with two roles.
 
-| Role   | Login          | Demo credentials       |
-| ------ | -------------- | ---------------------- |
-| Driver | `/driver/login` | `BGL-0142` / `driver123` |
-| Admin  | `/admin/login`  | `ADM-001` / `admin123`   |
+| Role   | Login           | Employee ID |
+| ------ | --------------- | ----------- |
+| Driver | `/driver/login` | `BGL-0142`  |
+| Admin  | `/admin/login`  | `ADM-001`   |
+
+**No passwords are stored in this repository.** The two seeded accounts take
+their passwords from `DEMO_DRIVER_PASSWORD` and `DEMO_ADMIN_PASSWORD`. If those
+are unset, a random password is generated per server start, printed to the
+terminal, and shown on the login page — so `npm run dev` works with no setup.
+
+In a production build (`NODE_ENV=production`) the credentials are never printed
+or displayed. Leave the variables unset there and the seeded accounts are
+unusable by anyone.
 
 `middleware.ts` sends anonymous traffic to the right login page, keeps drivers
 out of `/admin` and admins out of `/driver`, and each page re-checks the session

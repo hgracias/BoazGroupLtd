@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { LoginForm } from "@/components/driver/login-form";
 import { company } from "@/lib/company";
-import { DEMO_ADMIN } from "@/lib/data/seed";
+import { demoAccountForDisplay } from "@/lib/demo-credentials";
 
 export const metadata: Metadata = {
   title: "Operations Sign In",
@@ -19,6 +19,9 @@ export default function AdminLoginPage({
 }) {
   const raw = searchParams.callbackUrl ?? "/admin";
   const callbackUrl = raw.startsWith("/admin") ? raw : "/admin";
+
+  // Null in production — a deployed build never shows a working login.
+  const demo = demoAccountForDisplay("admin");
 
   return (
     <div className="flex min-h-screen flex-col justify-center bg-navy-900 px-5 py-12">
@@ -56,13 +59,18 @@ export default function AdminLoginPage({
             <LoginForm callbackUrl={callbackUrl} variant="admin" />
           </div>
 
-          <div className="mt-7 rounded-lg border border-dashed border-gold-300 bg-gold-50 p-4 text-sm">
-            <p className="font-semibold text-navy-900">Demo credentials (prototype data)</p>
-            <p className="mt-1 text-muted-foreground">
-              Admin ID <code className="font-semibold text-navy-800">{DEMO_ADMIN.employeeId}</code> ·
-              Password <code className="font-semibold text-navy-800">{DEMO_ADMIN.password}</code>
-            </p>
-          </div>
+          {demo ? (
+            <div className="mt-7 rounded-lg border border-dashed border-gold-300 bg-gold-50 p-4 text-sm">
+              <p className="font-semibold text-navy-900">Demo credentials (development only)</p>
+              <p className="mt-1 text-muted-foreground">
+                Admin ID <code className="font-semibold text-navy-800">{demo.employeeId}</code> ·
+                Password <code className="font-semibold text-navy-800">{demo.password}</code>
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Set in .env.local, or generated per session. Never shown in a production build.
+              </p>
+            </div>
+          ) : null}
 
           <p className="mt-7 text-sm text-muted-foreground">
             Drivers:{" "}

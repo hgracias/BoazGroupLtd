@@ -14,7 +14,7 @@ import { stats } from "@/lib/content/site";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Boaz Group Ltd is a Tanzanian cross-border road freight and clearing company based in Dar es Salaam, running company-owned trucks across the East African Community corridor since 2011.",
+    "Boaz Group Ltd is a Tanzanian cross-border road freight and clearing company based in Dar es Salaam, running company-owned trucks across the East African Community corridor since 2020.",
   alternates: { canonical: "/about" },
 };
 
@@ -25,7 +25,7 @@ export default function AboutPage() {
         breadcrumb="About"
         eyebrow="Who we are"
         title="A Dar es Salaam haulier that treats the border as part of the job."
-        description="Boaz Group Ltd has been moving cargo out of Dar es Salaam since 2011. We own the trucks, employ the drivers and hold the clearing licence — which is why we can be held to a date."
+        description="Boaz Group Ltd has been moving cargo out of Dar es Salaam since 2020. We own the trucks, employ the drivers and hold the clearing licence — which is why we can be held to a date."
       />
 
       <section className="section bg-background">
@@ -34,15 +34,15 @@ export default function AboutPage() {
             <div>
               <p className="eyebrow">Our story</p>
               <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-navy-900">
-                Two trucks, one corridor, a lot of queuing.
+                One truck, one corridor, a lot of queuing.
               </h2>
               <div className="mt-6 space-y-4 text-muted-foreground">
                 <p>
-                  The company started with two prime movers shuttling containers between
-                  Dar es Salaam port and inland depots. The freight was the easy part.
-                  What cost clients money was the border — entries lodged late, documents
-                  that did not match the manifest, trucks idling at Rusumo while someone
-                  in an office chased a signature.
+                  The company started with a single prime mover shuttling containers
+                  between Dar es Salaam port and inland depots. The freight was the easy
+                  part. What cost clients money was the border — entries lodged late,
+                  documents that did not match the manifest, trucks idling at Rusumo while
+                  someone in an office chased a signature.
                 </p>
                 <p>
                   So we became a licensed clearing and forwarding agent ourselves rather
@@ -52,10 +52,10 @@ export default function AboutPage() {
                   you ask where it is.
                 </p>
                 <p>
-                  Fourteen years on we run {stats[3].value} company-owned prime movers
-                  across four corridors, from a yard and warehouse in Vingunguti. We still
-                  turn down loads we cannot deliver on time — it is cheaper than an
-                  apology.
+                  Six years on we run {stats[3].value} company-owned prime movers across
+                  four corridors, from a yard and warehouse in Vingunguti. It is a small
+                  fleet on purpose: we still turn down loads we cannot deliver on time,
+                  because that is cheaper than an apology.
                 </p>
               </div>
 

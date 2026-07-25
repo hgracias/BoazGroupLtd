@@ -27,9 +27,9 @@ export const services: Service[] = [
       "Bonded transit under TANCIS / RADDEx where required",
     ],
     specs: [
-      { label: "Fleet", value: "38 prime movers" },
+      { label: "Fleet", value: "3 prime movers" },
       { label: "Max payload", value: "30 tonnes / unit" },
-      { label: "Trailer types", value: "Flatbed, skeletal, curtain-side, tipper" },
+      { label: "Trailer types", value: "Flatbed, skeletal, curtain-side" },
     ],
   },
   {

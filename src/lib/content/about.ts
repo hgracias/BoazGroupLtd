@@ -3,36 +3,28 @@
  * invented to make the page look complete — confirm or replace before launch.
  */
 
+// Founding year is confirmed (2020). The intermediate milestones are still
+// PLACEHOLDER — confirm the dates or delete the ones that did not happen.
 export const milestones = [
   {
-    year: "2011",
+    year: "2020",
     title: "Founded in Dar es Salaam",
-    body: "Started with two trucks moving containerised cargo between the port and inland depots.",
+    body: "Started moving containerised cargo between the port and inland depots.",
   },
   {
-    year: "2014",
+    year: "2022",
     title: "First Rusumo crossing",
     body: "Opened the Kigali corridor and registered as a licensed clearing and forwarding agent.",
   },
   {
-    year: "2017",
-    title: "Vingunguti yard and warehouse",
-    body: "Moved into a 4,200 m² facility, adding consolidation for part-load shippers.",
-  },
-  {
-    year: "2020",
+    year: "2024",
     title: "Namanga and Mutukula lanes",
-    body: "Added scheduled departures to Nairobi and Kampala, and a dedicated border desk.",
-  },
-  {
-    year: "2023",
-    title: "Fleet telematics",
-    body: "GPS and fuel telemetry fitted across the fleet, giving clients milestone-level visibility.",
+    body: "Added departures to Nairobi and Kampala, and a dedicated border desk.",
   },
   {
     year: "2026",
-    title: "38 prime movers, four corridors",
-    body: "Company-owned fleet serving Rwanda, Kenya, Burundi and Uganda from one operations desk.",
+    title: "Four corridors, one desk",
+    body: "Serving Rwanda, Kenya, Burundi and Uganda on company-owned trucks.",
   },
 ];
 
@@ -59,7 +51,7 @@ export const leadership = [
   {
     name: "Boaz Mushi",
     role: "Managing Director",
-    bio: "Founded the company in 2011 after a decade in port logistics. Still signs off every corridor rate.",
+    bio: "Founded the company in 2020 after years in port logistics. Still signs off every corridor rate.",
     initials: "BM",
   },
   {
@@ -77,16 +69,20 @@ export const leadership = [
   {
     name: "Grace Kileo",
     role: "Fleet & Workshop Manager",
-    bio: "Keeps 38 prime movers roadworthy, insured and on their service intervals.",
+    bio: "Keeps the fleet roadworthy, insured and on its service intervals.",
     initials: "GK",
   },
 ];
 
 export const fleet = [
-  { type: "Prime movers", detail: "Scania, Volvo, MAN, Howo", count: "38 units" },
-  { type: "Skeletal trailers", detail: "40ft and 2 x 20ft configurations", count: "22 units" },
-  { type: "Flatbed & curtain-side", detail: "General and palletised cargo", count: "11 units" },
-  { type: "Tippers", detail: "Bulk and construction materials", count: "5 units" },
+  { type: "Prime movers", detail: "Scania, Volvo and Howo units", count: "3 units" },
+  { type: "Skeletal trailers", detail: "40ft and 2 x 20ft container configurations", count: "Matched to load" },
+  { type: "Flatbed & curtain-side", detail: "General and palletised cargo", count: "Matched to load" },
+  {
+    type: "Partner capacity",
+    detail: "Vetted carriers for volume peaks — named to you upfront, never silently",
+    count: "On request",
+  },
 ];
 
 export const compliance = [

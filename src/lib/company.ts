@@ -10,16 +10,16 @@ export const company = {
   tagline: "Quality Is Our Definition",
   positioning:
     "Cross-border road freight across the East African Community corridor.",
-  foundedYear: 2011,
+  foundedYear: 2020,
   logo: "/brand/boaz-logo.jpg",
 
-  // PLACEHOLDER — swap for real numbers/addresses.
-  phone: "+255 22 286 1140",
-  phoneHref: "tel:+255222861140",
-  whatsapp: "+255 754 000 000",
-  whatsappHref: "https://wa.me/255754000000",
-  email: "operations@boazgroup.co.tz",
-  emailHref: "mailto:operations@boazgroup.co.tz",
+  phone: "+255 677 841 333",
+  phoneHref: "tel:+255677841333",
+  // International line — clients outside the region reach the same desk.
+  whatsapp: "+1 617 818 5235",
+  whatsappHref: "https://wa.me/16178185235",
+  email: "Jimmyhboaz@boazigroup.com",
+  emailHref: "mailto:Jimmyhboaz@boazigroup.com",
 
   hours: {
     weekday: "Mon – Fri, 07:30 – 18:00 EAT",
@@ -33,9 +33,10 @@ export const company = {
       label: "Head Office & Yard",
       city: "Dar es Salaam",
       country: "Tanzania",
-      // PLACEHOLDER address
+      // PLACEHOLDER address — street, P.O. box and the second office below
+      // are still unconfirmed.
       address: ["Nyerere Road, Vingunguti", "P.O. Box 78421", "Dar es Salaam, Tanzania"],
-      phone: "+255 22 286 1140",
+      phone: "+255 677 841 333",
       mapQuery: "Nyerere Road, Vingunguti, Dar es Salaam, Tanzania",
     },
     {
@@ -44,7 +45,7 @@ export const company = {
       city: "Dar es Salaam Port",
       country: "Tanzania",
       address: ["Kurasini, Gate 5 Area", "Dar es Salaam Port", "Dar es Salaam, Tanzania"],
-      phone: "+255 22 286 1141",
+      phone: "+255 677 841 333",
       mapQuery: "Dar es Salaam Port, Kurasini, Tanzania",
     },
   ],

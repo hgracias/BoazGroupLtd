@@ -2,10 +2,10 @@ import type { LucideIcon } from "lucide-react";
 import { ClipboardList, PackageCheck, MapPin, FileSignature } from "lucide-react";
 
 export const stats = [
-  { value: "14", suffix: "+", label: "Years on the Central Corridor" },
-  { value: "6", suffix: "", label: "Border posts worked daily" },
+  { value: "6", suffix: "", label: "Years on the Central Corridor" },
+  { value: "6", suffix: "", label: "Border posts we clear through" },
   { value: "96.4", suffix: "%", label: "On-time delivery, last 12 months" },
-  { value: "38", suffix: "", label: "Company-owned prime movers" },
+  { value: "3", suffix: "", label: "Company-owned prime movers" },
 ];
 
 export type Step = { icon: LucideIcon; title: string; body: string };

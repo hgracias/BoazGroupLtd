@@ -24,11 +24,11 @@ export default async function ProfilePage() {
     <div>
       <PortalHeader title="My profile" description="Details operations holds for you." />
 
-      <div className="space-y-6 px-4 py-6 sm:px-6">
+      <div className="space-y-6">
         <Card>
           <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-navy-700 font-display text-xl font-semibold text-white">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary font-display text-xl font-semibold text-white">
                 {driver.fullName
                   .split(" ")
                   .slice(0, 2)
@@ -36,7 +36,7 @@ export default async function ProfilePage() {
                   .join("")}
               </span>
               <div>
-                <p className="font-display text-xl font-semibold text-navy-900">
+                <p className="font-display text-xl font-semibold text-foreground">
                   {driver.fullName}
                 </p>
                 <p className="text-sm text-muted-foreground">
@@ -81,7 +81,7 @@ export default async function ProfilePage() {
                 <InfoRow label="National ID" value={driver.nationalId ?? "Not on file"} />
               </dl>
               {licenceExpiringSoon ? (
-                <p className="mt-4 flex items-start gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+                <p className="mt-4 flex items-start gap-2 rounded-md bg-amber-500/10 p-3 text-sm text-amber-200">
                   <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                   Your licence expires within 90 days. Start the renewal now — border
                   posts will not clear an expired licence.

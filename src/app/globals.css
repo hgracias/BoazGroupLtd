@@ -35,6 +35,56 @@
     --ring: 234 53% 36%;
 
     --radius: 0.625rem;
+
+    /* Surface behind form fields — white on the public site. */
+    --field: 0 0% 100%;
+    --panel: 0 0% 100%;
+    --elevated: 40 20% 97%;
+    --card-hover: 40 20% 96%;
+    --success: 142 62% 36%;
+    --gold: 40 63% 48%;
+  }
+
+  /*
+   * BOAZ360 driver portal: a dark enterprise scope. Redefining the shadcn
+   * tokens here means every primitive (Card, Input, Table, Badge…) renders
+   * dark inside the portal without forking a second component library.
+   */
+  .portal-shell {
+    --background: 214 73% 9%;
+    --foreground: 210 40% 98%;
+
+    --card: 211 62% 16%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 212 67% 13%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 61% 21%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 212 67% 13%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 46 65% 52%;
+    --accent-foreground: 214 73% 9%;
+
+    --destructive: 0 74% 51%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 212 32% 27%;
+    --input: 212 32% 30%;
+    --ring: 217 91% 60%;
+
+    --field: 212 67% 13%;
+    --panel: 212 74% 10%;
+    --elevated: 212 67% 13%;
+    --card-hover: 210 61% 21%;
+    --success: 142 71% 45%;
+    --gold: 46 65% 52%;
   }
 }
 
@@ -59,6 +109,15 @@
 }
 
 @layer components {
+  /* Portal panel: translucent navy with a hairline border and soft depth. */
+  .portal-panel {
+    @apply rounded-2xl border border-border/70 bg-card shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset,0_18px_40px_-24px_rgba(2,8,20,0.9)];
+  }
+
+  .portal-panel-muted {
+    @apply rounded-2xl border border-border/60 bg-elevated;
+  }
+
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-[0.18em] text-gold-600;
   }

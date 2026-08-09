@@ -48,7 +48,7 @@ export default async function ClockPage() {
         description="Log the start and end of every shift or trip leg."
       />
 
-      <div className="space-y-6 px-4 py-6 sm:px-6">
+      <div className="space-y-6">
         <ClockPanel
           openShift={openShift}
           tripLabel={trip ? `${trip.reference} — ${trip.origin} → ${trip.destination}` : undefined}
@@ -68,7 +68,7 @@ export default async function ClockPage() {
                   {history.map((record) => (
                     <li key={record.id} className="px-6 py-4">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="font-semibold text-navy-900">
+                        <p className="font-semibold text-foreground">
                           {dateOnly(record.clockInAt)}
                         </p>
                         <Badge variant="subtle">

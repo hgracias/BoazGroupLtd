@@ -81,6 +81,35 @@ export type Truck = {
   status: TruckStatus;
   nextServiceKm?: number;
   insuranceExpiry?: string;
+  /** Telemetry surfaced on the driver dashboard. */
+  fuelLevelPercent: number;
+  fuelCapacityLitres?: number;
+  engineHours: number;
+};
+
+export type Trailer = {
+  id: string;
+  plateNumber: string;
+  type: string;
+  axles: number;
+  capacityTons?: number;
+  status: TruckStatus;
+  inspectionExpiry?: string;
+};
+
+export type TripStopStatus = "COMPLETED" | "CURRENT" | "UPCOMING";
+export type TripStopKind = "ORIGIN" | "WAYPOINT" | "BORDER" | "DESTINATION";
+
+export type RouteStop = {
+  id: string;
+  name: string;
+  kind: TripStopKind;
+  status: TripStopStatus;
+  /** Planned time — used for upcoming stops. */
+  scheduledAt?: string;
+  arrivedAt?: string;
+  departedAt?: string;
+  note?: string;
 };
 
 export type Trip = {
@@ -97,6 +126,9 @@ export type Trip = {
   deliveredAt?: string;
   driverId: string;
   truckId: string;
+  trailerId?: string;
+  /** Ordered origin → destination. The timeline renders straight from this. */
+  stops: RouteStop[];
 };
 
 export type ClockRecord = {
@@ -146,6 +178,105 @@ export type ExpenseReport = {
   driverId: string;
   tripId?: string;
   createdAt: string;
+};
+
+/* ------------------------------------------------- driver portal ------- */
+
+export type InspectionType = "PRE_TRIP" | "POST_TRIP" | "ROADSIDE";
+export type InspectionResult = "PASS" | "PASS_WITH_DEFECTS" | "FAIL";
+
+export type Inspection = {
+  id: string;
+  performedAt: string;
+  type: InspectionType;
+  result: InspectionResult;
+  driverId: string;
+  truckId: string;
+  trailerId?: string;
+  odometerKm: number;
+  /** Empty when the unit passed clean. */
+  defects: string[];
+  note?: string;
+};
+
+export type MessagePriority = "NORMAL" | "HIGH";
+
+export type DriverMessage = {
+  id: string;
+  driverId: string;
+  from: string;
+  fromRole: string;
+  subject: string;
+  body: string;
+  sentAt: string;
+  read: boolean;
+  priority: MessagePriority;
+};
+
+export type RestSchedule = {
+  driverId: string;
+  /** When the driver must next stop. */
+  nextRestAt: string;
+  requiredMinutes: number;
+  lastRestEndedAt?: string;
+};
+
+export type DocumentCategory = "LICENCE" | "IDENTITY" | "MEDICAL" | "TRAINING" | "VEHICLE";
+
+export type DriverDocument = {
+  id: string;
+  driverId: string;
+  name: string;
+  category: DocumentCategory;
+  reference?: string;
+  issuedAt?: string;
+  expiresAt?: string;
+  fileUrl?: string;
+};
+
+export type PayrollStatus = "PAID" | "PROCESSING" | "SCHEDULED";
+
+export type PayrollEntry = {
+  id: string;
+  driverId: string;
+  periodLabel: string;
+  periodEnd: string;
+  baseAmountTzs: number;
+  tripAllowanceTzs: number;
+  deductionsTzs: number;
+  netTzs: number;
+  status: PayrollStatus;
+  paidAt?: string;
+  tripsCompleted: number;
+};
+
+export type LeaveType = "ANNUAL" | "SICK" | "COMPASSIONATE" | "UNPAID";
+
+export type LeaveRequest = {
+  id: string;
+  driverId: string;
+  type: LeaveType;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason?: string;
+  status: ApprovalStatus;
+  reviewedAt?: string;
+  reviewNote?: string;
+  createdAt: string;
+};
+
+export type EmergencyKind = "BREAKDOWN" | "ACCIDENT" | "MEDICAL" | "SECURITY" | "OTHER";
+
+export type EmergencyAlert = {
+  id: string;
+  driverId: string;
+  tripId?: string;
+  kind: EmergencyKind;
+  note?: string;
+  location?: string;
+  raisedAt: string;
+  acknowledged: boolean;
 };
 
 export type ShipmentEvent = {

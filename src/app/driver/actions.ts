@@ -6,9 +6,14 @@ import {
   clockIn,
   clockOut,
   createExpense,
+  createLeaveRequest,
   createMaintenance,
   getActiveTripForDriver,
+  markAllMessagesRead,
+  markMessageRead,
+  raiseEmergencyAlert,
 } from "@/lib/data";
+import type { EmergencyKind, LeaveType } from "@/lib/data/types";
 import { requireDriver } from "@/lib/session";
 import { saveReceipt } from "@/lib/uploads";
 import {
@@ -116,6 +121,93 @@ export async function createMaintenanceAction(formData: FormData): Promise<Actio
   revalidatePath("/driver");
   revalidatePath("/admin");
   return { ok: true, message: "Maintenance record saved." };
+}
+
+const EMERGENCY_KINDS: EmergencyKind[] = [
+  "BREAKDOWN",
+  "ACCIDENT",
+  "MEDICAL",
+  "SECURITY",
+  "OTHER",
+];
+
+/**
+ * MOCK emergency escalation.
+ *
+ * This records an alert against the driver and logs it server-side. There is
+ * no control-room, SMS or emergency-services integration behind it, so the UI
+ * must say the alert was *logged*, never that help has been dispatched.
+ */
+export async function raiseEmergencyAction(formData: FormData): Promise<ActionResult> {
+  const driver = await requireDriver();
+
+  const rawKind = String(formData.get("kind") ?? "OTHER") as EmergencyKind;
+  const kind = EMERGENCY_KINDS.includes(rawKind) ? rawKind : "OTHER";
+  const note = optional(formData.get("note"));
+  const location = optional(formData.get("location"));
+
+  const trip = await getActiveTripForDriver(driver.id);
+  const alert = await raiseEmergencyAlert({
+    driverId: driver.id,
+    tripId: trip?.id,
+    kind,
+    note,
+    location,
+  });
+
+  revalidatePath("/driver");
+  revalidatePath("/driver/emergency");
+
+  return {
+    ok: true,
+    message: `Alert ${alert.id} logged. Call the operations desk now — this prototype does not notify anyone automatically.`,
+  };
+}
+
+export async function markMessageReadAction(formData: FormData): Promise<ActionResult> {
+  const driver = await requireDriver();
+  const messageId = String(formData.get("messageId") ?? "");
+
+  const result = await markMessageRead({ driverId: driver.id, messageId });
+  if (!result.ok) return { ok: false, error: result.error };
+
+  revalidatePath("/driver/messages");
+  revalidatePath("/driver");
+  return { ok: true, message: "Message marked as read." };
+}
+
+export async function markAllMessagesReadAction(): Promise<ActionResult> {
+  const driver = await requireDriver();
+  await markAllMessagesRead(driver.id);
+
+  revalidatePath("/driver/messages");
+  revalidatePath("/driver");
+  return { ok: true, message: "All messages marked as read." };
+}
+
+export async function createLeaveRequestAction(formData: FormData): Promise<ActionResult> {
+  const driver = await requireDriver();
+
+  const type = String(formData.get("type") ?? "ANNUAL") as LeaveType;
+  const startDate = String(formData.get("startDate") ?? "");
+  const endDate = String(formData.get("endDate") ?? "");
+  const reason = optional(formData.get("reason"));
+
+  if (!startDate || !endDate) {
+    return { ok: false, error: "Choose both a start and an end date." };
+  }
+
+  const result = await createLeaveRequest({
+    driverId: driver.id,
+    type,
+    startDate,
+    endDate,
+    reason,
+  });
+  if (!result.ok) return { ok: false, error: result.error };
+
+  revalidatePath("/driver/leave");
+  return { ok: true, message: `Leave request submitted for ${result.request.days} day(s).` };
 }
 
 export async function createExpenseAction(formData: FormData): Promise<ActionResult> {

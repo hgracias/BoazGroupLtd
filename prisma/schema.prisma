@@ -73,6 +73,65 @@ enum ApprovalStatus {
   REJECTED
 }
 
+enum TripStopStatus {
+  COMPLETED
+  CURRENT
+  UPCOMING
+}
+
+enum TripStopKind {
+  ORIGIN
+  WAYPOINT
+  BORDER
+  DESTINATION
+}
+
+enum InspectionType {
+  PRE_TRIP
+  POST_TRIP
+  ROADSIDE
+}
+
+enum InspectionResult {
+  PASS
+  PASS_WITH_DEFECTS
+  FAIL
+}
+
+enum MessagePriority {
+  NORMAL
+  HIGH
+}
+
+enum DocumentCategory {
+  LICENCE
+  IDENTITY
+  MEDICAL
+  TRAINING
+  VEHICLE
+}
+
+enum PayrollStatus {
+  PAID
+  PROCESSING
+  SCHEDULED
+}
+
+enum LeaveType {
+  ANNUAL
+  SICK
+  COMPASSIONATE
+  UNPAID
+}
+
+enum EmergencyKind {
+  BREAKDOWN
+  ACCIDENT
+  MEDICAL
+  SECURITY
+  OTHER
+}
+
 enum ShipmentStatus {
   BOOKED
   LOADED
@@ -112,6 +171,13 @@ model Driver {
   maintenanceRecords MaintenanceRecord[]
   expenseReports     ExpenseReport[]
   trips              Trip[]
+  inspections        Inspection[]
+  messages           DriverMessage[]
+  documents          DriverDocument[]
+  payrollEntries     PayrollEntry[]
+  leaveRequests      LeaveRequest[]
+  emergencyAlerts    EmergencyAlert[]
+  restSchedule       RestSchedule?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -147,9 +213,31 @@ model Truck {
   nextServiceKm Int?
   insuranceExpiry DateTime?
 
+  // Telemetry surfaced on the driver dashboard.
+  fuelLevelPercent  Int   @default(0)
+  fuelCapacityLitres Int?
+  engineHours       Int   @default(0)
+
   drivers            Driver[]            @relation("AssignedDriver")
   maintenanceRecords MaintenanceRecord[]
   trips              Trip[]
+  inspections        Inspection[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Trailer {
+  id               String      @id @default(cuid())
+  plateNumber      String      @unique
+  type             String
+  axles            Int
+  capacityTons     Float?
+  status           TruckStatus @default(ACTIVE)
+  inspectionExpiry DateTime?
+
+  trips       Trip[]
+  inspections Inspection[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -170,14 +258,18 @@ model Trip {
   expectedAt    DateTime?
   deliveredAt   DateTime?
 
-  driverId String
-  driver   Driver @relation(fields: [driverId], references: [id])
-  truckId  String
-  truck    Truck  @relation(fields: [truckId], references: [id])
+  driverId  String
+  driver    Driver   @relation(fields: [driverId], references: [id])
+  truckId   String
+  truck     Truck    @relation(fields: [truckId], references: [id])
+  trailerId String?
+  trailer   Trailer? @relation(fields: [trailerId], references: [id])
 
+  stops          TripStop[]
   clockRecords   ClockRecord[]
   expenseReports ExpenseReport[]
   shipments      Shipment[]
+  emergencyAlerts EmergencyAlert[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -258,6 +350,141 @@ model ExpenseReport {
 
   @@index([driverId, status])
   @@index([status, spentAt])
+}
+
+// ---------------------------------------------------------------- driver portal
+
+model TripStop {
+  id          String         @id @default(cuid())
+  name        String
+  kind        TripStopKind   @default(WAYPOINT)
+  status      TripStopStatus @default(UPCOMING)
+  sequence    Int
+  scheduledAt DateTime?
+  arrivedAt   DateTime?
+  departedAt  DateTime?
+  note        String?
+
+  tripId String
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, sequence])
+}
+
+model Inspection {
+  id          String           @id @default(cuid())
+  performedAt DateTime
+  type        InspectionType
+  result      InspectionResult
+  odometerKm  Int
+  defects     String[]
+  note        String?
+
+  driverId  String
+  driver    Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  truckId   String
+  truck     Truck    @relation(fields: [truckId], references: [id])
+  trailerId String?
+  trailer   Trailer? @relation(fields: [trailerId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([driverId, performedAt])
+  @@index([truckId, performedAt])
+}
+
+model DriverMessage {
+  id       String          @id @default(cuid())
+  from     String
+  fromRole String
+  subject  String
+  body     String
+  sentAt   DateTime        @default(now())
+  read     Boolean         @default(false)
+  priority MessagePriority @default(NORMAL)
+
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([driverId, read])
+}
+
+model RestSchedule {
+  id              String   @id @default(cuid())
+  nextRestAt      DateTime
+  requiredMinutes Int      @default(45)
+  lastRestEndedAt DateTime?
+
+  driverId String @unique
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+}
+
+model DriverDocument {
+  id        String           @id @default(cuid())
+  name      String
+  category  DocumentCategory
+  reference String?
+  issuedAt  DateTime?
+  expiresAt DateTime?
+  fileUrl   String?
+
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([driverId, expiresAt])
+}
+
+model PayrollEntry {
+  id                String        @id @default(cuid())
+  periodLabel       String
+  periodEnd         DateTime
+  baseAmountTzs     Float
+  tripAllowanceTzs  Float
+  deductionsTzs     Float         @default(0)
+  netTzs            Float
+  status            PayrollStatus @default(SCHEDULED)
+  paidAt            DateTime?
+  tripsCompleted    Int           @default(0)
+
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@index([driverId, periodEnd])
+}
+
+model LeaveRequest {
+  id         String         @id @default(cuid())
+  type       LeaveType
+  startDate  DateTime
+  endDate    DateTime
+  days       Int
+  reason     String?
+  status     ApprovalStatus @default(PENDING)
+  reviewedAt DateTime?
+  reviewNote String?
+
+  driverId String
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([driverId, status])
+}
+
+model EmergencyAlert {
+  id           String        @id @default(cuid())
+  kind         EmergencyKind
+  note         String?
+  location     String?
+  raisedAt     DateTime      @default(now())
+  acknowledged Boolean       @default(false)
+
+  driverId String
+  driver   Driver  @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  tripId   String?
+  trip     Trip?   @relation(fields: [tripId], references: [id])
+
+  @@index([driverId, raisedAt])
 }
 
 // ---------------------------------------------------------------- public tracking

@@ -72,6 +72,13 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Portal surfaces — light values on the public site, dark inside
+        // .portal-shell (see globals.css).
+        field: "hsl(var(--field))",
+        panel: "hsl(var(--panel))",
+        elevated: "hsl(var(--elevated))",
+        "card-hover": "hsl(var(--card-hover))",
+        success: "hsl(var(--success))",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",

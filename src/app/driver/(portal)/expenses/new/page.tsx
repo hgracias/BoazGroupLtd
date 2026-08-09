@@ -22,7 +22,7 @@ export default async function NewExpensePage() {
         backHref="/driver/expenses"
       />
 
-      <div className="px-4 py-6 sm:px-6">
+      <div>
         <Card className="mx-auto max-w-3xl">
           <CardContent className="p-6">
             <ExpenseForm

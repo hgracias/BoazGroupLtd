@@ -1,310 +1,189 @@
 import Link from "next/link";
-import {
-  AlertTriangle,
-  ArrowRight,
-  Clock,
-  Gauge,
-  MapPin,
-  Receipt,
-  Truck as TruckIcon,
-  Wrench,
-} from "lucide-react";
+import { AlertTriangle, Clock, Gauge, Route as RouteIcon, Timer } from "lucide-react";
 
-import { InfoRow } from "@/components/driver/portal-ui";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatMoney, formatTzs } from "@/lib/currency";
+import { EmergencySOSCard } from "@/components/driver/dashboard/emergency-sos-card";
+import { FuelGauge } from "@/components/driver/dashboard/fuel-gauge";
+import { MetricCard, MetricValue } from "@/components/driver/dashboard/metric-card";
+import { NextRestCountdown } from "@/components/driver/dashboard/next-rest-countdown";
 import {
+  AssignmentCard,
+  TrailerCard,
+  VehicleCard,
+} from "@/components/driver/dashboard/summary-cards";
+import {
+  ExpenseSummaryCard,
+  InspectionSummaryCard,
+  MessageSummaryCard,
+} from "@/components/driver/dashboard/summary-tiles";
+import { TripProgressTimeline } from "@/components/driver/dashboard/trip-progress-timeline";
+import { company } from "@/lib/company";
+import {
+  countUnreadMessages,
   getActiveTripForDriver,
+  getLatestInspection,
   getOpenClockRecord,
+  getRestSchedule,
+  getTrailerById,
   getTruckById,
   listExpenses,
-  listMaintenance,
+  listMessages,
 } from "@/lib/data";
-import {
-  approvalBadgeVariant,
-  approvalLabels,
-  dateOnly,
-  dateTime,
-  duration,
-  expenseCategoryLabels,
-  maintenanceTypeLabels,
-  tripStatusLabels,
-} from "@/lib/format";
+import { duration, timeOnly } from "@/lib/format";
 import { requireDriver } from "@/lib/session";
 
 export default async function DriverDashboardPage() {
   const driver = await requireDriver();
-  const [openShift, trip, truck, expenses, maintenance] = await Promise.all([
-    getOpenClockRecord(driver.id),
-    getActiveTripForDriver(driver.id),
-    getTruckById(driver.assignedTruckId),
-    listExpenses({ driverId: driver.id }),
-    listMaintenance({ driverId: driver.id }),
-  ]);
 
-  const pending = expenses.filter((expense) => expense.status === "PENDING");
-  const pendingTzs = pending.reduce((total, expense) => total + expense.amountTzs, 0);
+  const [trip, truck, openShift, inspection, expenses, messages, unread, rest] =
+    await Promise.all([
+      getActiveTripForDriver(driver.id),
+      getTruckById(driver.assignedTruckId),
+      getOpenClockRecord(driver.id),
+      getLatestInspection(driver.id),
+      listExpenses({ driverId: driver.id }),
+      listMessages(driver.id),
+      countUnreadMessages(driver.id),
+      getRestSchedule(driver.id),
+    ]);
+
+  const trailer = await getTrailerById(trip?.trailerId);
   const firstName = driver.fullName.split(" ")[0];
-  const serviceDueIn =
-    truck?.nextServiceKm != null ? truck.nextServiceKm - truck.odometerKm : null;
+  const latestExpense = expenses[0] ?? null;
+  const latestMessage = messages[0] ?? null;
+  const serviceDueIn = truck?.nextServiceKm ? truck.nextServiceKm - truck.odometerKm : null;
 
   return (
-    <div className="space-y-6 px-4 py-6 sm:px-6">
-      <div>
-        <p className="text-sm text-muted-foreground">Karibu tena,</p>
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-navy-900">
-          {firstName}
-        </h1>
+    <div className="mx-auto max-w-[1500px] space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            Welcome back, {firstName} <span aria-hidden="true">👋</span>
+          </h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Here is your current assignment and vehicle status.
+          </p>
+        </div>
+
+        <p
+          className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold ${
+            openShift
+              ? "bg-emerald-500/15 text-emerald-300"
+              : "bg-white/[0.06] text-muted-foreground"
+          }`}
+        >
+          <Clock className="h-4 w-4" aria-hidden="true" />
+          {openShift
+            ? `On shift · ${duration(openShift.clockInAt, new Date().toISOString())}`
+            : "Off duty"}
+        </p>
       </div>
 
-      {/* Primary action: the thing a driver opens the app to do. */}
-      <Card className={openShift ? "border-emerald-200 bg-emerald-50/50" : ""}>
-        <CardContent className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-4">
-            <span
-              className={`inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${
-                openShift ? "bg-emerald-600 text-white" : "bg-navy-100 text-navy-700"
-              }`}
+      {/* Top summary cards */}
+      <div className="grid gap-4 lg:grid-cols-12">
+        <AssignmentCard trip={trip} />
+        <VehicleCard truck={truck} />
+        <TrailerCard trailer={trailer} />
+      </div>
+
+      {/* Operating metrics */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <MetricCard label="Fuel level" icon={Gauge}>
+          {truck ? (
+            <FuelGauge percent={truck.fuelLevelPercent} litres={truck.fuelCapacityLitres} />
+          ) : (
+            <p className="text-sm text-muted-foreground">No vehicle assigned</p>
+          )}
+        </MetricCard>
+
+        <MetricCard
+          label="Odometer"
+          icon={RouteIcon}
+          footer={
+            serviceDueIn !== null
+              ? serviceDueIn <= 10_000
+                ? `Service due in ${serviceDueIn.toLocaleString()} km`
+                : `Next service at ${truck?.nextServiceKm?.toLocaleString()} km`
+              : undefined
+          }
+        >
+          <MetricValue value={(truck?.odometerKm ?? 0).toLocaleString()} unit="km" />
+        </MetricCard>
+
+        <MetricCard label="Engine hours" icon={Timer}>
+          <MetricValue value={(truck?.engineHours ?? 0).toLocaleString()} unit="h" />
+        </MetricCard>
+
+        <MetricCard label="Next rest" icon={Clock}>
+          {rest ? (
+            <NextRestCountdown
+              nextRestAt={rest.nextRestAt}
+              serverLabel={timeOnly(rest.nextRestAt)}
+              requiredMinutes={rest.requiredMinutes}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">No rest scheduled</p>
+          )}
+        </MetricCard>
+      </div>
+
+      {/* Trip progress */}
+      <section className="portal-panel p-5 sm:p-6" aria-labelledby="trip-progress-heading">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="trip-progress-heading" className="font-display text-lg font-semibold">
+            Current trip progress
+          </h2>
+          {trip ? (
+            <Link
+              href="/driver/trips"
+              className="text-sm font-semibold text-blue-300 hover:text-blue-200"
             >
-              <Clock className="h-6 w-6" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="font-semibold text-navy-900">
-                {openShift ? "You are on shift" : "You are off duty"}
-              </p>
-              {openShift ? (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Clocked in {dateTime(openShift.clockInAt)} ·{" "}
-                  {duration(openShift.clockInAt, new Date().toISOString())} so far
-                  {openShift.locationIn ? ` · ${openShift.locationIn}` : ""}
-                </p>
-              ) : (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Clock in when you start your shift or leave the yard.
-                </p>
-              )}
-            </div>
-          </div>
-          <Button asChild size="touch" variant={openShift ? "outline" : "default"} className="sm:w-auto">
-            <Link href="/driver/clock">
-              {openShift ? "Clock out" : "Clock in"}
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              All trips
             </Link>
-          </Button>
-        </CardContent>
-      </Card>
+          ) : null}
+        </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-gold-600" aria-hidden="true" />
-              Current trip
-            </CardTitle>
-            {trip ? <Badge variant="gold">{tripStatusLabels[trip.status]}</Badge> : null}
-          </CardHeader>
-          <CardContent>
-            {trip ? (
-              <dl className="divide-y divide-border">
-                <InfoRow label="Reference" value={trip.reference} />
-                <InfoRow label="Route" value={`${trip.origin} → ${trip.destination}`} />
-                <InfoRow label="Border post" value={trip.borderPost ?? "—"} />
-                <InfoRow label="Cargo" value={trip.cargoSummary ?? "—"} />
-                <InfoRow
-                  label="Expected"
-                  value={trip.expectedAt ? dateOnly(trip.expectedAt) : "—"}
-                />
-              </dl>
-            ) : (
-              <p className="py-4 text-sm text-muted-foreground">
-                No trip assigned right now. Operations will notify you when the next
-                load is planned.
-              </p>
-            )}
-          </CardContent>
-        </Card>
+        <div className="mt-5">
+          {trip && trip.stops.length > 0 ? (
+            <TripProgressTimeline stops={trip.stops} />
+          ) : (
+            <p className="py-6 text-sm text-muted-foreground">
+              No active trip. Your next assignment will appear here once operations
+              schedules it.
+            </p>
+          )}
+        </div>
+      </section>
 
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle className="flex items-center gap-2">
-              <TruckIcon className="h-4 w-4 text-gold-600" aria-hidden="true" />
-              Assigned truck
-            </CardTitle>
-            {truck ? <Badge variant="subtle">{truck.plateNumber}</Badge> : null}
-          </CardHeader>
-          <CardContent>
-            {truck ? (
-              <>
-                <dl className="divide-y divide-border">
-                  <InfoRow label="Unit" value={`${truck.make} ${truck.model} (${truck.year})`} />
-                  <InfoRow label="Trailer" value={truck.trailerType ?? "—"} />
-                  <InfoRow
-                    label="Odometer"
-                    value={`${truck.odometerKm.toLocaleString()} km`}
-                  />
-                  <InfoRow
-                    label="Next service"
-                    value={
-                      truck.nextServiceKm
-                        ? `${truck.nextServiceKm.toLocaleString()} km`
-                        : "—"
-                    }
-                  />
-                </dl>
-                {serviceDueIn !== null && serviceDueIn <= 10_000 ? (
-                  <p className="mt-4 flex items-start gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-900">
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                    Service due in {serviceDueIn.toLocaleString()} km — book it with the
-                    workshop before the next long run.
-                  </p>
-                ) : null}
-              </>
-            ) : (
-              <p className="py-4 text-sm text-muted-foreground">
-                No truck assigned to you at the moment.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Button asChild size="touch" variant="outline" className="justify-start gap-3">
-          <Link href="/driver/maintenance/new">
-            <Wrench className="h-5 w-5 text-gold-600" aria-hidden="true" />
-            Log maintenance
-          </Link>
-        </Button>
-        <Button asChild size="touch" variant="outline" className="justify-start gap-3">
-          <Link href="/driver/expenses/new">
-            <Receipt className="h-5 w-5 text-gold-600" aria-hidden="true" />
-            Add trip expense
-          </Link>
-        </Button>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Expenses awaiting approval</CardTitle>
-            <Badge variant={pending.length ? "warning" : "subtle"}>{pending.length}</Badge>
-          </CardHeader>
-          <CardContent>
-            {pending.length ? (
-              <>
-                <ul className="divide-y divide-border">
-                  {pending.slice(0, 4).map((expense) => (
-                    <li key={expense.id} className="flex items-center justify-between gap-4 py-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-navy-900">
-                          {expenseCategoryLabels[expense.category]}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {dateOnly(expense.spentAt)} · {expense.description}
-                        </p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <p className="text-sm font-semibold text-navy-900">
-                          {formatMoney(expense.amount, expense.currency)}
-                        </p>
-                        {expense.currency !== "TZS" ? (
-                          <p className="text-xs text-muted-foreground">
-                            ≈ {formatTzs(expense.amountTzs)}
-                          </p>
-                        ) : null}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
-                  Pending total:{" "}
-                  <span className="font-semibold text-navy-900">{formatTzs(pendingTzs)}</span>
-                </p>
-              </>
-            ) : (
-              <p className="py-4 text-sm text-muted-foreground">
-                Nothing pending. Everything you have submitted has been reviewed.
-              </p>
-            )}
-            <Button asChild variant="link" className="mt-3 h-auto p-0">
-              <Link href="/driver/expenses">
-                View all expenses
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Recent maintenance</CardTitle>
-            <Gauge className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-          </CardHeader>
-          <CardContent>
-            {maintenance.length ? (
-              <ul className="divide-y divide-border">
-                {maintenance.slice(0, 4).map((record) => (
-                  <li key={record.id} className="flex items-center justify-between gap-4 py-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-navy-900">
-                        {maintenanceTypeLabels[record.type]}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {dateOnly(record.performedAt)} · {record.odometerKm.toLocaleString()} km
-                      </p>
-                    </div>
-                    <p className="shrink-0 text-sm font-semibold text-navy-900">
-                      {formatMoney(record.costAmount, record.costCurrency)}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="py-4 text-sm text-muted-foreground">
-                No maintenance logged yet.
-              </p>
-            )}
-            <Button asChild variant="link" className="mt-3 h-auto p-0">
-              <Link href="/driver/maintenance">
-                View maintenance history
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Lower action cards */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <InspectionSummaryCard inspection={inspection} />
+        <MessageSummaryCard unreadCount={unread} latest={latestMessage} />
+        <ExpenseSummaryCard expense={latestExpense} />
+        <EmergencySOSCard operationsPhone={company.phone} />
       </div>
 
       {expenses.some((expense) => expense.status === "REJECTED") ? (
-        <Card className="border-red-200 bg-red-50/40">
-          <CardHeader>
-            <CardTitle className="text-red-900">Needs your attention</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3">
-              {expenses
-                .filter((expense) => expense.status === "REJECTED")
-                .slice(0, 3)
-                .map((expense) => (
-                  <li key={expense.id} className="text-sm">
-                    <div className="flex items-center gap-2">
-                      <Badge variant={approvalBadgeVariant[expense.status]}>
-                        {approvalLabels[expense.status]}
-                      </Badge>
-                      <span className="font-semibold text-navy-900">
-                        {formatMoney(expense.amount, expense.currency)} ·{" "}
-                        {expenseCategoryLabels[expense.category]}
-                      </span>
-                    </div>
-                    {expense.reviewNote ? (
-                      <p className="mt-1.5 text-muted-foreground">{expense.reviewNote}</p>
-                    ) : null}
-                  </li>
-                ))}
-            </ul>
-          </CardContent>
-        </Card>
+        <section className="portal-panel border-red-500/30 bg-destructive/10 p-5">
+          <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-red-200">
+            <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+            Needs your attention
+          </h2>
+          <ul className="mt-4 space-y-3">
+            {expenses
+              .filter((expense) => expense.status === "REJECTED")
+              .slice(0, 3)
+              .map((expense) => (
+                <li key={expense.id} className="text-sm">
+                  <p className="font-semibold text-foreground">
+                    Rejected · {expense.description}
+                  </p>
+                  {expense.reviewNote ? (
+                    <p className="mt-1 text-muted-foreground">{expense.reviewNote}</p>
+                  ) : null}
+                </li>
+              ))}
+          </ul>
+        </section>
       ) : null}
     </div>
   );

@@ -73,7 +73,7 @@ export default async function ExpensesPage({
         }
       />
 
-      <div className="space-y-6 px-4 py-6 sm:px-6">
+      <div className="space-y-6">
         {searchParams.saved ? (
           <FormBanner tone="success">
             Expense submitted. Operations will review it shortly.
@@ -86,7 +86,7 @@ export default async function ExpensesPage({
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Pending approval
               </p>
-              <p className="mt-2 font-display text-2xl font-semibold text-navy-900">
+              <p className="mt-2 font-display text-2xl font-semibold text-foreground">
                 {formatTzs(totals.pending)}
               </p>
             </CardContent>
@@ -96,7 +96,7 @@ export default async function ExpensesPage({
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Approved to date
               </p>
-              <p className="mt-2 font-display text-2xl font-semibold text-navy-900">
+              <p className="mt-2 font-display text-2xl font-semibold text-foreground">
                 {formatTzs(totals.approved)}
               </p>
             </CardContent>
@@ -113,8 +113,8 @@ export default async function ExpensesPage({
                 aria-current={active ? "true" : undefined}
                 className={`inline-flex h-11 items-center rounded-full border px-4 text-sm font-semibold transition-colors ${
                   active
-                    ? "border-navy-700 bg-navy-700 text-white"
-                    : "border-border bg-white text-navy-800 hover:border-navy-200"
+                    ? "border-primary bg-primary text-white"
+                    : "border-border bg-white/[0.04] text-slate-200 hover:border-white/25"
                 }`}
               >
                 {filter.label}
@@ -131,7 +131,7 @@ export default async function ExpensesPage({
                   <li key={expense.id} className="px-5 py-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-navy-900">
+                        <p className="font-semibold text-foreground">
                           {expenseCategoryLabels[expense.category]}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -139,7 +139,7 @@ export default async function ExpensesPage({
                         </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="font-semibold text-navy-900">
+                        <p className="font-semibold text-foreground">
                           {formatMoney(expense.amount, expense.currency)}
                         </p>
                         {expense.currency !== "TZS" ? (
@@ -159,7 +159,7 @@ export default async function ExpensesPage({
                           href={expense.receiptUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-navy-700 hover:underline"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-blue-300 hover:underline"
                         >
                           <Paperclip className="h-3 w-3" aria-hidden="true" />
                           Receipt
@@ -167,7 +167,7 @@ export default async function ExpensesPage({
                       ) : null}
                     </div>
                     {expense.reviewNote ? (
-                      <p className="mt-2 rounded bg-sand-100 px-3 py-2 text-xs text-navy-800">
+                      <p className="mt-2 rounded bg-white/[0.05] px-3 py-2 text-xs text-slate-200">
                         {expense.reviewNote}
                       </p>
                     ) : null}
@@ -200,7 +200,7 @@ export default async function ExpensesPage({
                         <TableCell className="max-w-sm text-muted-foreground">
                           {expense.description}
                           {expense.reviewNote ? (
-                            <span className="mt-1 block text-xs text-navy-800">
+                            <span className="mt-1 block text-xs text-slate-200">
                               Note: {expense.reviewNote}
                             </span>
                           ) : null}
@@ -222,7 +222,7 @@ export default async function ExpensesPage({
                               href={expense.receiptUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-sm font-semibold text-navy-700 hover:underline"
+                              className="inline-flex items-center gap-1 text-sm font-semibold text-blue-300 hover:underline"
                             >
                               <Paperclip className="h-3.5 w-3.5" aria-hidden="true" />
                               View

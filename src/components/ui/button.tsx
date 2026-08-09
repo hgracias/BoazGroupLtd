@@ -11,9 +11,10 @@ const buttonVariants = cva(
       variant: {
         default: "bg-navy-700 text-white hover:bg-navy-800",
         gold: "bg-gold-500 text-navy-900 hover:bg-gold-400",
-        outline:
-          "border border-navy-200 bg-transparent text-navy-800 hover:bg-navy-50",
-        ghost: "text-navy-800 hover:bg-navy-50",
+        // Token-based so these work on the light public site and inside the
+        // dark .portal-shell scope without a second variant set.
+        outline: "border border-input bg-transparent text-foreground hover:bg-muted",
+        ghost: "text-foreground hover:bg-muted",
         inverse: "bg-white text-navy-800 hover:bg-sand-100",
         "outline-inverse":
           "border border-white/30 bg-transparent text-white hover:bg-white/10",

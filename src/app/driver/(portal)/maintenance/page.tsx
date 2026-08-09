@@ -58,7 +58,7 @@ export default async function MaintenancePage({
         }
       />
 
-      <div className="space-y-6 px-4 py-6 sm:px-6">
+      <div className="space-y-6">
         {searchParams.saved ? (
           <FormBanner tone="success">Maintenance record saved.</FormBanner>
         ) : null}
@@ -110,14 +110,14 @@ export default async function MaintenancePage({
                   <li key={record.id} className="px-5 py-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-navy-900">
+                        <p className="font-semibold text-foreground">
                           {maintenanceTypeLabels[record.type]}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {dateOnly(record.performedAt)} · {record.truckPlate}
                         </p>
                       </div>
-                      <p className="shrink-0 text-sm font-semibold text-navy-900">
+                      <p className="shrink-0 text-sm font-semibold text-foreground">
                         {formatMoney(record.costAmount, record.costCurrency)}
                       </p>
                     </div>
@@ -130,7 +130,7 @@ export default async function MaintenancePage({
                           href={record.receiptUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1 font-semibold text-navy-700 hover:underline"
+                          className="inline-flex items-center gap-1 font-semibold text-blue-300 hover:underline"
                         >
                           <Paperclip className="h-3 w-3" aria-hidden="true" />
                           Receipt
@@ -185,7 +185,7 @@ export default async function MaintenancePage({
                               href={record.receiptUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-sm font-semibold text-navy-700 hover:underline"
+                              className="inline-flex items-center gap-1 text-sm font-semibold text-blue-300 hover:underline"
                             >
                               <Paperclip className="h-3.5 w-3.5" aria-hidden="true" />
                               View

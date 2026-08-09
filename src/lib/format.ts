@@ -2,9 +2,14 @@ import { format, formatDistanceStrict } from "date-fns";
 
 import type {
   ApprovalStatus,
+  DocumentCategory,
   DutyStatus,
   ExpenseCategory,
+  InspectionResult,
+  InspectionType,
+  LeaveType,
   MaintenanceType,
+  PayrollStatus,
   ShipmentStatus,
   TripStatus,
 } from "@/lib/data/types";
@@ -76,6 +81,44 @@ export const shipmentStatusLabels: Record<ShipmentStatus, string> = {
   DELIVERED: "Delivered",
   EXCEPTION: "Exception",
 };
+
+export const inspectionTypeLabels: Record<InspectionType, string> = {
+  PRE_TRIP: "Pre-trip",
+  POST_TRIP: "Post-trip",
+  ROADSIDE: "Roadside check",
+};
+
+export const inspectionResultLabels: Record<InspectionResult, string> = {
+  PASS: "Passed",
+  PASS_WITH_DEFECTS: "Passed with defects",
+  FAIL: "Failed",
+};
+
+export const leaveTypeLabels: Record<LeaveType, string> = {
+  ANNUAL: "Annual leave",
+  SICK: "Sick leave",
+  COMPASSIONATE: "Compassionate leave",
+  UNPAID: "Unpaid leave",
+};
+
+export const payrollStatusLabels: Record<PayrollStatus, string> = {
+  PAID: "Paid",
+  PROCESSING: "Processing",
+  SCHEDULED: "Scheduled",
+};
+
+export const documentCategoryLabels: Record<DocumentCategory, string> = {
+  LICENCE: "Licence",
+  IDENTITY: "Identity",
+  MEDICAL: "Medical",
+  TRAINING: "Training",
+  VEHICLE: "Vehicle",
+};
+
+/** Days until a date — negative once it has passed. */
+export function daysUntil(iso: string) {
+  return Math.ceil((new Date(iso).getTime() - Date.now()) / 86_400_000);
+}
 
 export const approvalBadgeVariant: Record<ApprovalStatus, "warning" | "success" | "danger"> = {
   PENDING: "warning",

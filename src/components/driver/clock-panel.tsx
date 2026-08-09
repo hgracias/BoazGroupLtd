@@ -62,17 +62,17 @@ export function ClockPanel({
 
   return (
     <div className="space-y-5">
-      <Card className={openShift ? "border-emerald-200 bg-emerald-50/50" : ""}>
+      <Card className={openShift ? "border-emerald-500/30 bg-emerald-500/10" : ""}>
         <CardContent className="flex items-center gap-4 p-6">
           <span
             className={`inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${
-              openShift ? "bg-emerald-600 text-white" : "bg-navy-100 text-navy-700"
+              openShift ? "bg-emerald-600 text-white" : "bg-white/10 text-blue-300"
             }`}
           >
             <Clock className="h-7 w-7" aria-hidden="true" />
           </span>
           <div>
-            <p className="font-display text-xl font-semibold text-navy-900">
+            <p className="font-display text-xl font-semibold text-foreground">
               {openShift ? "On shift" : "Off duty"}
             </p>
             {openShift ? (
@@ -94,7 +94,7 @@ export function ClockPanel({
           role="status"
           className={`flex items-start gap-3 rounded-md border p-4 text-sm ${
             result.ok
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
               : "border-destructive/30 bg-destructive/5 text-destructive"
           }`}
         >
@@ -111,7 +111,7 @@ export function ClockPanel({
         <CardContent className="p-6">
           <form ref={formRef} action={submit} className="space-y-5">
             {tripLabel ? (
-              <p className="rounded-md bg-sand-100 px-4 py-3 text-sm text-navy-800">
+              <p className="rounded-md bg-white/[0.05] px-4 py-3 text-sm text-slate-200">
                 This will be recorded against <span className="font-semibold">{tripLabel}</span>.
               </p>
             ) : null}

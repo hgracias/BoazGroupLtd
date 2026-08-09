@@ -31,8 +31,12 @@ prisma/schema.prisma          Target data model (Driver, Truck, Trip, ClockRecor
                               MaintenanceRecord, ExpenseReport, Admin, Shipment)
 src/app/(marketing)/          Public site — home, services, routes, tracking,
                               about, quote, contact (+ actions.ts for form posts)
-src/app/driver/               Driver portal — login, dashboard, clock, maintenance,
-                              expenses, profile (+ actions.ts for mutations)
+src/app/driver/               BOAZ360 driver portal — login, dashboard, trips,
+                              vehicle, inspections, clock, expenses, maintenance,
+                              documents, messages, payroll, leave, emergency,
+                              profile (+ actions.ts for mutations)
+src/components/portal/        Portal shell: sidebar, topbar, mobile drawer, brand
+src/components/driver/dashboard/  BOAZ360 dashboard cards, gauge, timeline, SOS
 src/app/admin/                Admin — login, overview, expenses, maintenance, clock
 src/app/api/auth/             NextAuth route handler
 middleware.ts                 Role-based route protection for /driver and /admin
@@ -86,6 +90,14 @@ Phone numbers, the WhatsApp number, email and street addresses in
 Marketing copy in `src/lib/content/` is realistic but unverified — fleet counts,
 on-time percentages and licence claims should be confirmed.
 
+## Driver portal theming
+
+The portal is a dark enterprise scope layered on the same component library.
+`.portal-shell` (in `src/app/globals.css`) redefines the shadcn CSS variables —
+`--background`, `--card`, `--border`, `--field` and friends — so Card, Input,
+Table and Button render dark inside the portal and light on the public site,
+with no forked components.
+
 ## Known gaps before launch
 
 1. **Receipt uploads write to local disk** (`src/lib/uploads.ts`). Vercel's
@@ -96,6 +108,12 @@ on-time percentages and licence claims should be confirmed.
    Each expense stores the rate used at submission, so changing them is safe.
 4. **Company facts are unverified** — fleet counts, on-time percentage, founding
    year, leadership names, milestones and certifications in `src/lib/content/`.
+5. **The SOS control is a mock.** `raiseEmergencyAction` records an alert and
+   logs it server-side; no control room, SMS gateway or emergency service is
+   connected. The UI says so explicitly — keep that wording until a real
+   integration exists.
+6. **Portal telemetry is seeded, not live** — fuel level, engine hours and the
+   next-rest countdown come from mock data, not a telematics feed.
 
 ## Data layer
 

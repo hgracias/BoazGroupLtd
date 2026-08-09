@@ -8,11 +8,21 @@ import type {
   ClockRecord,
   Currency,
   Driver,
+  DriverDocument,
+  DriverMessage,
+  EmergencyAlert,
+  EmergencyKind,
   ExpenseCategory,
   ExpenseReport,
+  Inspection,
+  LeaveRequest,
+  LeaveType,
   MaintenanceRecord,
   MaintenanceType,
+  PayrollEntry,
+  RestSchedule,
   Shipment,
+  Trailer,
   Trip,
   Truck,
 } from "@/lib/data/types";
@@ -275,6 +285,148 @@ export async function setExpenseStatus(input: {
   return { ok: true as const, record };
 }
 
+/* ------------------------------------------------- driver portal ------- */
+
+export async function getTrailerById(trailerId?: string) {
+  if (!trailerId) return null;
+  return db().trailers.find((trailer) => trailer.id === trailerId) ?? null;
+}
+
+export async function listTrailers() {
+  return [...db().trailers].sort((a, b) => a.plateNumber.localeCompare(b.plateNumber));
+}
+
+export async function listInspections(filters?: { driverId?: string; truckId?: string }) {
+  return db()
+    .inspections.filter((record) => {
+      if (filters?.driverId && record.driverId !== filters.driverId) return false;
+      if (filters?.truckId && record.truckId !== filters.truckId) return false;
+      return true;
+    })
+    .sort((a, b) => byNewest(a.performedAt, b.performedAt));
+}
+
+export async function getLatestInspection(driverId: string) {
+  const [latest] = await listInspections({ driverId });
+  return latest ?? null;
+}
+
+export async function listMessages(driverId: string) {
+  return db()
+    .messages.filter((message) => message.driverId === driverId)
+    .sort((a, b) => byNewest(a.sentAt, b.sentAt));
+}
+
+export async function countUnreadMessages(driverId: string) {
+  return db().messages.filter((message) => message.driverId === driverId && !message.read).length;
+}
+
+export async function markMessageRead(input: { driverId: string; messageId: string }) {
+  const message = db().messages.find(
+    (item) => item.id === input.messageId && item.driverId === input.driverId
+  );
+  if (!message) return { ok: false as const, error: "Message not found." };
+  message.read = true;
+  return { ok: true as const, message };
+}
+
+export async function markAllMessagesRead(driverId: string) {
+  db()
+    .messages.filter((message) => message.driverId === driverId)
+    .forEach((message) => {
+      message.read = true;
+    });
+  return { ok: true as const };
+}
+
+export async function getRestSchedule(driverId: string) {
+  return db().restSchedules.find((schedule) => schedule.driverId === driverId) ?? null;
+}
+
+export async function listDocuments(driverId: string) {
+  return db()
+    .documents.filter((document) => document.driverId === driverId)
+    .sort((a, b) => {
+      // Anything with an expiry sorts first, soonest first.
+      if (a.expiresAt && b.expiresAt) return a.expiresAt.localeCompare(b.expiresAt);
+      if (a.expiresAt) return -1;
+      if (b.expiresAt) return 1;
+      return a.name.localeCompare(b.name);
+    });
+}
+
+export async function listPayroll(driverId: string) {
+  return db()
+    .payroll.filter((entry) => entry.driverId === driverId)
+    .sort((a, b) => byNewest(a.periodEnd, b.periodEnd));
+}
+
+export async function listLeaveRequests(driverId: string) {
+  return db()
+    .leaveRequests.filter((request) => request.driverId === driverId)
+    .sort((a, b) => byNewest(a.createdAt, b.createdAt));
+}
+
+export async function createLeaveRequest(input: {
+  driverId: string;
+  type: LeaveType;
+  startDate: string;
+  endDate: string;
+  reason?: string;
+}) {
+  const start = new Date(input.startDate);
+  const end = new Date(input.endDate);
+  if (end.getTime() < start.getTime()) {
+    return { ok: false as const, error: "The end date cannot be before the start date." };
+  }
+
+  const days = Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1;
+  const request: LeaveRequest = {
+    id: id("lv"),
+    driverId: input.driverId,
+    type: input.type,
+    startDate: start.toISOString(),
+    endDate: end.toISOString(),
+    days,
+    reason: input.reason,
+    status: "PENDING",
+    createdAt: new Date().toISOString(),
+  };
+  db().leaveRequests.unshift(request);
+  return { ok: true as const, request };
+}
+
+/**
+ * MOCK: records the alert in memory and logs it. No emergency service, SMS
+ * gateway or control-room integration exists yet — the UI must not claim
+ * anyone has been dispatched.
+ */
+export async function raiseEmergencyAlert(input: {
+  driverId: string;
+  tripId?: string;
+  kind: EmergencyKind;
+  note?: string;
+  location?: string;
+}) {
+  const alert: EmergencyAlert = {
+    id: id("sos"),
+    raisedAt: new Date().toISOString(),
+    acknowledged: false,
+    ...input,
+  };
+  db().emergencyAlerts.unshift(alert);
+  console.warn(
+    `[emergency:MOCK] ${alert.id} raised by ${alert.driverId} (${alert.kind}) — no external system was contacted.`
+  );
+  return alert;
+}
+
+export async function listEmergencyAlerts(driverId?: string) {
+  return db()
+    .emergencyAlerts.filter((alert) => (driverId ? alert.driverId === driverId : true))
+    .sort((a, b) => byNewest(a.raisedAt, b.raisedAt));
+}
+
 /* ------------------------------------------------------------ shipments */
 
 export async function getShipmentByRef(trackingRef: string): Promise<Shipment | null> {
@@ -313,4 +465,20 @@ export async function decorateWithTruck<T extends { truckId: string }>(rows: T[]
   })) as WithTruck<T>[];
 }
 
-export type { Admin, ClockRecord, Driver, ExpenseReport, MaintenanceRecord, Trip, Truck };
+export type {
+  Admin,
+  ClockRecord,
+  Driver,
+  DriverDocument,
+  DriverMessage,
+  EmergencyAlert,
+  ExpenseReport,
+  Inspection,
+  LeaveRequest,
+  MaintenanceRecord,
+  PayrollEntry,
+  RestSchedule,
+  Trailer,
+  Trip,
+  Truck,
+};

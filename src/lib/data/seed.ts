@@ -2,6 +2,15 @@ import bcrypt from "bcryptjs";
 
 import { rateToTzs } from "@/lib/currency";
 import { demoPasswords } from "@/lib/demo-credentials";
+import {
+  bujumburaStops,
+  createPortalSeed,
+  kampalaStops,
+  kigaliStops,
+  namangaStops,
+  type PortalSeed,
+} from "@/lib/data/seed-portal";
+import { at, inDays } from "@/lib/data/seed-time";
 import type {
   Admin,
   ClockRecord,
@@ -15,20 +24,6 @@ import type {
 
 const hash = (plain: string) => bcrypt.hashSync(plain, 10);
 
-function at(daysAgo: number, hour = 6, minute = 0) {
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-  date.setHours(hour, minute, 0, 0);
-  return date.toISOString();
-}
-
-function inDays(days: number, hour = 12) {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  date.setHours(hour, 0, 0, 0);
-  return date.toISOString();
-}
-
 export type SeedData = {
   drivers: Driver[];
   admins: Admin[];
@@ -38,7 +33,7 @@ export type SeedData = {
   maintenanceRecords: MaintenanceRecord[];
   expenseReports: ExpenseReport[];
   shipments: Shipment[];
-};
+} & PortalSeed;
 
 export function createSeed(): SeedData {
   // Passwords come from the environment (or a random per-process value) —
@@ -59,6 +54,9 @@ export function createSeed(): SeedData {
       status: "ACTIVE",
       nextServiceKm: 495_000,
       insuranceExpiry: inDays(148),
+      fuelLevelPercent: 65,
+      fuelCapacityLitres: 600,
+      engineHours: 12_340,
     },
     {
       id: "trk_2",
@@ -72,6 +70,9 @@ export function createSeed(): SeedData {
       status: "ACTIVE",
       nextServiceKm: 280_000,
       insuranceExpiry: inDays(61),
+      fuelLevelPercent: 28,
+      fuelCapacityLitres: 500,
+      engineHours: 7_180,
     },
     {
       id: "trk_3",
@@ -85,6 +86,9 @@ export function createSeed(): SeedData {
       status: "ACTIVE",
       nextServiceKm: 620_000,
       insuranceExpiry: inDays(203),
+      fuelLevelPercent: 82,
+      fuelCapacityLitres: 700,
+      engineHours: 15_920,
     },
   ];
 
@@ -186,6 +190,8 @@ export function createSeed(): SeedData {
       expectedAt: inDays(2, 16),
       driverId: "drv_1",
       truckId: "trk_1",
+      trailerId: "trl_1",
+      stops: kigaliStops,
     },
     {
       id: "trp_2",
@@ -200,6 +206,8 @@ export function createSeed(): SeedData {
       expectedAt: inDays(1, 10),
       driverId: "drv_2",
       truckId: "trk_2",
+      trailerId: "trl_2",
+      stops: namangaStops,
     },
     {
       id: "trp_3",
@@ -215,6 +223,8 @@ export function createSeed(): SeedData {
       deliveredAt: at(6, 9, 20),
       driverId: "drv_3",
       truckId: "trk_3",
+      trailerId: "trl_3",
+      stops: kampalaStops,
     },
     {
       id: "trp_4",
@@ -228,6 +238,8 @@ export function createSeed(): SeedData {
       expectedAt: inDays(7, 15),
       driverId: "drv_4",
       truckId: "trk_2",
+      trailerId: "trl_2",
+      stops: bujumburaStops,
     },
   ];
 
@@ -634,5 +646,15 @@ export function createSeed(): SeedData {
     },
   ];
 
-  return { drivers, admins, trucks, trips, clockRecords, maintenanceRecords, expenseReports, shipments };
+  return {
+    drivers,
+    admins,
+    trucks,
+    trips,
+    clockRecords,
+    maintenanceRecords,
+    expenseReports,
+    shipments,
+    ...createPortalSeed(),
+  };
 }

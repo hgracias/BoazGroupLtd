@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import { LogOut, Settings } from "lucide-react";
 
 import { BrandMark, BrandWordmark } from "@/components/portal/brand-mark";
-import { emergencyNavItem, isNavItemActive, portalNav } from "@/components/portal/nav-items";
+import { isNavItemActive, portalNav } from "@/components/portal/nav-items";
 import { cn } from "@/lib/utils";
 
 export type SidebarDriver = {
@@ -58,13 +58,19 @@ export function SidebarContent({
         </div>
       </div>
 
-      <nav aria-label="Driver portal" className="mt-4 flex-1 overflow-y-auto px-3 pb-3">
-        {portalNav.map((group) => (
-          <div key={group.label} className="mb-3.5">
-            <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
-              {group.label}
-            </p>
-            <ul className="space-y-1">
+      <nav aria-label="Driver portal" className="mt-3 flex-1 overflow-y-auto px-3 pb-3">
+        {portalNav.map((group, groupIndex) => (
+          <div
+            key={group.label}
+            className={cn(
+              "py-1.5",
+              groupIndex > 0 && "border-t border-border/40"
+            )}
+          >
+            {/* Headings are for assistive tech only — the reference design
+                reads as one flat list. */}
+            <h2 className="sr-only">{group.label}</h2>
+            <ul className="space-y-0.5">
               {group.items.map((item) => {
                 const active = isNavItemActive(pathname, item);
                 const danger = item.tone === "danger";
@@ -109,20 +115,6 @@ export function SidebarContent({
       </nav>
 
       <div className="border-t border-border/60 p-3">
-        <Link
-          href={emergencyNavItem.href}
-          onClick={onNavigate}
-          aria-current={isNavItemActive(pathname, emergencyNavItem) ? "page" : undefined}
-          className={cn(
-            "mb-1 flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition-colors lg:min-h-[40px]",
-            isNavItemActive(pathname, emergencyNavItem)
-              ? "bg-destructive text-destructive-foreground shadow-[0_10px_24px_-12px_rgba(220,38,38,0.95)]"
-              : "text-red-300 hover:bg-destructive/15 hover:text-red-200"
-          )}
-        >
-          <emergencyNavItem.icon className="h-[18px] w-[18px]" aria-hidden="true" />
-          {emergencyNavItem.label}
-        </Link>
         <Link
           href="/driver/profile"
           onClick={onNavigate}

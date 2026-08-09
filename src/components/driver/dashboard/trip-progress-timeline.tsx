@@ -80,24 +80,23 @@ export function TripProgressTimeline({ stops }: { stops: RouteStop[] }) {
               <p
                 className={cn(
                   "mt-3 text-sm font-semibold",
-                  current ? "text-foreground" : completed ? "text-slate-200" : "text-muted-foreground"
+                  current ? "text-white" : completed ? "text-slate-200" : "text-slate-400"
                 )}
               >
                 {stop.name}
               </p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">{stopTime(stop)}</p>
-              <p
-                className={cn(
-                  "mt-1.5 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-                  completed && "bg-emerald-500/15 text-emerald-300",
-                  current && "bg-blue-500/20 text-blue-200",
-                  !completed && !current && "bg-white/5 text-slate-400"
-                )}
-              >
-                {statusText[stop.status]}
-              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{stopTime(stop)}</p>
+
+              {/* Status reaches assistive tech for every stop; only the live
+                  one gets a visible chip, as in the reference design. */}
+              <span className="sr-only">{statusText[stop.status]}</span>
+              {current ? (
+                <span className="mt-2 inline-flex items-center rounded-full bg-blue-500/20 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-200">
+                  Current position
+                </span>
+              ) : null}
               {stop.note ? (
-                <p className="mt-1.5 max-w-[180px] text-[11px] leading-relaxed text-muted-foreground">
+                <p className="mt-2 max-w-[190px] text-xs leading-relaxed text-slate-400">
                   {stop.note}
                 </p>
               ) : null}

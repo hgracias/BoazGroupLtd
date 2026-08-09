@@ -103,7 +103,16 @@ export default async function VehiclePage() {
 
         <div className="space-y-5">
           <PortalSection title="Fuel" description="Reading from the last telemetry sync.">
-            <FuelGauge percent={truck.fuelLevelPercent} litres={truck.fuelCapacityLitres} />
+            <FuelGauge percent={truck.fuelLevelPercent} />
+            {truck.fuelCapacityLitres ? (
+              <p className="mt-3 text-sm text-muted-foreground">
+                ≈{" "}
+                {Math.round(
+                  (truck.fuelLevelPercent / 100) * truck.fuelCapacityLitres
+                ).toLocaleString()}{" "}
+                L in tank of {truck.fuelCapacityLitres.toLocaleString()} L
+              </p>
+            ) : null}
           </PortalSection>
 
           <PortalSection title="Trailer">

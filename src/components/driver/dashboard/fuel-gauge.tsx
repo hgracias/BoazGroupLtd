@@ -20,59 +20,51 @@ function stateFor(percent: number): FuelState {
  */
 export function FuelGauge({
   percent,
-  litres,
   className,
 }: {
   percent: number;
-  litres?: number;
   className?: string;
 }) {
   const clamped = Math.max(0, Math.min(100, Math.round(percent)));
   const state = stateFor(clamped);
 
   return (
-    <div className={cn("flex items-center gap-4", className)}>
+    <div
+      role="meter"
+      aria-valuenow={clamped}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuetext={`${clamped} percent — ${state.label}`}
+      aria-label="Fuel level"
+      className={cn("flex items-center gap-3", className)}
+    >
       <div className="relative shrink-0">
-        <svg viewBox="0 0 120 68" className="h-[62px] w-[110px]" aria-hidden="true">
+        <svg viewBox="0 0 120 66" className="h-[54px] w-[96px]" aria-hidden="true">
           <path
             d="M 10 60 A 50 50 0 0 1 110 60"
             fill="none"
             stroke="currentColor"
             className="text-white/10"
-            strokeWidth="11"
+            strokeWidth="12"
             strokeLinecap="round"
           />
           <path
             d="M 10 60 A 50 50 0 0 1 110 60"
             fill="none"
             stroke={state.tone}
-            strokeWidth="11"
+            strokeWidth="12"
             strokeLinecap="round"
             strokeDasharray={`${(clamped / 100) * ARC_LENGTH} ${ARC_LENGTH}`}
           />
         </svg>
-        <span className="absolute inset-x-0 bottom-0 text-center font-display text-xl font-semibold text-foreground">
-          {clamped}%
+        <span className="absolute inset-x-0 bottom-0 text-center font-display text-2xl font-semibold leading-none text-foreground">
+          {clamped}
+          <span className="text-base font-medium text-muted-foreground">%</span>
         </span>
       </div>
 
-      <div
-        role="meter"
-        aria-valuenow={clamped}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuetext={`${clamped} percent — ${state.label}`}
-        aria-label="Fuel level"
-        className="min-w-0"
-      >
-        <p className={cn("text-sm font-semibold", state.className)}>{state.label}</p>
-        {litres ? (
-          <p className="text-xs text-muted-foreground">
-            ≈ {Math.round((clamped / 100) * litres).toLocaleString()} L of{" "}
-            {litres.toLocaleString()} L
-          </p>
-        ) : null}
-      </div>
+      {/* Never colour alone — the state is spelled out too. */}
+      <p className={cn("text-sm font-semibold", state.className)}>{state.label}</p>
     </div>
   );
 }

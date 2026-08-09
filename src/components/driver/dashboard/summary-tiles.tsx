@@ -32,13 +32,17 @@ function TileShell({
         <p className="text-xs font-semibold uppercase tracking-[0.12em]">{title}</p>
       </div>
       <div className="mt-3 flex-1">{children}</div>
-      <Link
-        href={href}
-        className="mt-4 inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-border/70 bg-white/[0.04] px-4 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.09]"
-      >
-        {linkLabel}
-        <ArrowRight className="h-4 w-4" aria-hidden="true" />
-      </Link>
+      {/* Compact pill, left-aligned — matches the reference, still a 44px
+          touch target on phones. */}
+      <div className="mt-4">
+        <Link
+          href={href}
+          className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-blue-600 sm:h-9"
+        >
+          {linkLabel}
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Link>
+      </div>
     </div>
   );
 }

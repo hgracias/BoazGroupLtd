@@ -28,8 +28,13 @@ export type PortalNavItem = {
 export type PortalNavGroup = { label: string; items: PortalNavItem[] };
 
 /**
- * Every entry points at a route that exists. Clock In/Out and Maintenance are
- * kept from the original portal — they carry live server actions.
+ * Order follows the reference design. Groups are kept for screen readers and
+ * for the hairline dividers, but there are no visible category headings — the
+ * prototype reads as one flat list, which also buys the vertical room to show
+ * every item without scrolling on a laptop.
+ *
+ * Clock In/Out and Maintenance are additions to the reference: they carry the
+ * portal's live server actions and would otherwise be orphaned.
  */
 export const portalNav: PortalNavGroup[] = [
   {
@@ -58,18 +63,13 @@ export const portalNav: PortalNavGroup[] = [
       { href: "/driver/leave", label: "Leave Requests", icon: CalendarDays },
     ],
   },
+  {
+    label: "Urgent",
+    items: [
+      { href: "/driver/emergency", label: "Emergency (SOS)", icon: ShieldAlert, tone: "danger" },
+    ],
+  },
 ];
-
-/**
- * Pinned above Settings rather than sitting in a scrollable group — an
- * emergency link that can be scrolled out of view is no use in a cab.
- */
-export const emergencyNavItem: PortalNavItem = {
-  href: "/driver/emergency",
-  label: "Emergency (SOS)",
-  icon: ShieldAlert,
-  tone: "danger",
-};
 
 export function isNavItemActive(pathname: string, item: PortalNavItem) {
   return item.exact

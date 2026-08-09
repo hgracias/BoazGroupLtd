@@ -3,7 +3,7 @@ import { AlertTriangle, Clock, Gauge, Route as RouteIcon, Timer } from "lucide-r
 
 import { EmergencySOSCard } from "@/components/driver/dashboard/emergency-sos-card";
 import { FuelGauge } from "@/components/driver/dashboard/fuel-gauge";
-import { MetricCard, MetricValue } from "@/components/driver/dashboard/metric-card";
+import { MetricBadge, MetricCard, MetricValue } from "@/components/driver/dashboard/metric-card";
 import { NextRestCountdown } from "@/components/driver/dashboard/next-rest-countdown";
 import {
   AssignmentCard,
@@ -87,9 +87,17 @@ export default async function DriverDashboardPage() {
 
       {/* Operating metrics */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Fuel level" icon={Gauge}>
+        <MetricCard
+          label="Fuel level"
+          icon={Gauge}
+          footer={
+            truck?.fuelCapacityLitres
+              ? `≈ ${Math.round((truck.fuelLevelPercent / 100) * truck.fuelCapacityLitres).toLocaleString()} L of ${truck.fuelCapacityLitres.toLocaleString()} L`
+              : undefined
+          }
+        >
           {truck ? (
-            <FuelGauge percent={truck.fuelLevelPercent} litres={truck.fuelCapacityLitres} />
+            <FuelGauge percent={truck.fuelLevelPercent} />
           ) : (
             <p className="text-sm text-muted-foreground">No vehicle assigned</p>
           )}
@@ -109,17 +117,26 @@ export default async function DriverDashboardPage() {
           <MetricValue value={(truck?.odometerKm ?? 0).toLocaleString()} unit="km" />
         </MetricCard>
 
-        <MetricCard label="Engine hours" icon={Timer}>
+        <MetricCard
+          label="Engine hours"
+          icon={Timer}
+          footer={truck ? `Unit ${truck.plateNumber}` : undefined}
+        >
           <MetricValue value={(truck?.engineHours ?? 0).toLocaleString()} unit="h" />
         </MetricCard>
 
         <MetricCard label="Next rest" icon={Clock}>
           {rest ? (
-            <NextRestCountdown
-              nextRestAt={rest.nextRestAt}
-              serverLabel={timeOnly(rest.nextRestAt)}
-              requiredMinutes={rest.requiredMinutes}
-            />
+            <div className="flex items-center gap-3">
+              <MetricBadge icon={Clock} />
+              <div className="min-w-0">
+                <NextRestCountdown
+                  nextRestAt={rest.nextRestAt}
+                  serverLabel={timeOnly(rest.nextRestAt)}
+                  requiredMinutes={rest.requiredMinutes}
+                />
+              </div>
+            </div>
           ) : (
             <p className="text-sm text-muted-foreground">No rest scheduled</p>
           )}

@@ -46,7 +46,7 @@
   }
 
   /*
-   * BOAZ360 driver portal: a dark enterprise scope. Redefining the shadcn
+   * Driver portal: a dark enterprise scope. Redefining the shadcn
    * tokens here means every primitive (Card, Input, Table, Badge…) renders
    * dark inside the portal without forking a second component library.
    */

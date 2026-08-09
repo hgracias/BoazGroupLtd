@@ -6,7 +6,7 @@ import { countUnreadMessages } from "@/lib/data";
 import { requireDriver } from "@/lib/session";
 
 export const metadata: Metadata = {
-  title: { default: "Driver Portal", template: "%s | BOAZ360" },
+  title: { default: "Driver Portal", template: "%s | Boaz Group Ltd" },
   robots: { index: false, follow: false },
 };
 

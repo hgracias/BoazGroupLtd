@@ -2,7 +2,7 @@ import { DriverTopbar } from "@/components/portal/driver-topbar";
 import { SidebarContent, type SidebarDriver } from "@/components/portal/sidebar-content";
 
 /**
- * Two-column application shell for the BOAZ360 driver portal.
+ * Two-column application shell for the Boaz Group Ltd driver portal.
  * `.portal-shell` swaps the design tokens to the dark palette for everything
  * rendered inside it (see globals.css).
  */

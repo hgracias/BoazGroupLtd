@@ -12,7 +12,7 @@ import type {
 } from "@/lib/data/types";
 
 /**
- * Driver-portal seed data: the collections the BOAZ360 dashboard reads that
+ * Driver-portal seed data: the collections the driver dashboard reads that
  * the original freight seed did not cover. Kept separate so seed.ts stays
  * legible; both are merged in createSeed().
  */

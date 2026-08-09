@@ -31,12 +31,12 @@ prisma/schema.prisma          Target data model (Driver, Truck, Trip, ClockRecor
                               MaintenanceRecord, ExpenseReport, Admin, Shipment)
 src/app/(marketing)/          Public site — home, services, routes, tracking,
                               about, quote, contact (+ actions.ts for form posts)
-src/app/driver/               BOAZ360 driver portal — login, dashboard, trips,
+src/app/driver/               Driver portal — login, dashboard, trips,
                               vehicle, inspections, clock, expenses, maintenance,
                               documents, messages, payroll, leave, emergency,
                               profile (+ actions.ts for mutations)
 src/components/portal/        Portal shell: sidebar, topbar, mobile drawer, brand
-src/components/driver/dashboard/  BOAZ360 dashboard cards, gauge, timeline, SOS
+src/components/driver/dashboard/  Dashboard cards, fuel gauge, trip timeline, SOS
 src/app/admin/                Admin — login, overview, expenses, maintenance, clock
 src/app/api/auth/             NextAuth route handler
 middleware.ts                 Role-based route protection for /driver and /admin

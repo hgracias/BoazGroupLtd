@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * The three light summary cards that sit at the top of the dashboard —
- * deliberately white against the navy shell, as in the BOAZ360 design.
+ * deliberately white against the navy shell, as in the reference design.
  */
 function LightCard({
   children,

@@ -16,3 +16,8 @@ next-env.d.ts
 # Runtime receipt uploads (local storage stand-in for blob storage)
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# Agent skills: the content lives in .agents/skills and is committed.
+# .claude/skills only holds junctions/symlinks into it, which git cannot
+# represent portably — running `npx skills add` recreates them.
+/.claude/skills/

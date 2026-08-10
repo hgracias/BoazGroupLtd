@@ -98,10 +98,11 @@ export default function QuotePage({
             </Card>
 
             <div className="rounded-xl border border-dashed border-gold-300 bg-gold-50 p-5 text-sm">
-              <p className="font-semibold text-navy-900">Prototype note</p>
+              <p className="font-semibold text-navy-900">How this is handled</p>
               <p className="mt-1.5 text-muted-foreground">
-                Submissions are recorded server-side and given a reference, but no email
-                is sent yet — that needs an email provider to be connected.
+                Requests are stored in our database against the reference shown after
+                you submit. No automatic email is sent yet, so the operations desk picks
+                them up from there.
               </p>
             </div>
           </aside>

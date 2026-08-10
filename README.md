@@ -90,6 +90,97 @@ Phone numbers, the WhatsApp number, email and street addresses in
 Marketing copy in `src/lib/content/` is realistic but unverified — fleet counts,
 on-time percentages and licence claims should be confirmed.
 
+## Supabase
+
+The public **Get a Quote** form writes to Supabase (project `boazgroupltd`).
+Everything else still runs on the mock repository in `src/lib/data`.
+
+Set these in `.env` (both are publishable and safe in the browser):
+
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+```
+
+Without them the quote form falls back to the in-memory store, so the app
+still builds and runs on a bare checkout.
+
+**Access model — no authentication.** Requests run as the anonymous Postgres
+role. `public.quote_requests` has RLS enabled with a single INSERT policy for
+`anon`/`authenticated` and **no** select/update/delete policy, so anyone can
+submit a request and nobody can read submissions back through the Data API.
+Reading them requires the service role (Supabase dashboard or a server-side
+job). Verified: an anonymous `select` returns `42501 permission denied`.
+
+Because there is no read access, the `BGL-Q-…` reference is generated in the
+application rather than by a database default — returning a generated value
+would require a SELECT policy and expose every customer's contact details.
+
+Regenerate types after a schema change:
+
+```bash
+npx supabase gen types typescript --project-id iouiuvgyzujvrkyjihvg
+```
+
+### Public form tables
+
+| Table | Written by | Reference |
+| --- | --- | --- |
+| `quote_requests` | `/quote` | `BGL-Q-YYYY-XXXXX` |
+| `contact_submissions` | `/contact` | `BGL-M-YYYY-XXXXX` |
+
+Both are insert-only for `anon`, both generate their reference in the
+application, and both fall back to the in-memory store when Supabase is not
+configured so a bare checkout still works.
+
+## Spam protection
+
+Two layers, both applied to the quote form and the contact form.
+
+**1. Honeypot** — a hidden `company_website` field (`src/lib/spam/honeypot.ts`).
+Positioned off-screen rather than `display: none`, `aria-hidden`, `tabIndex=-1`.
+If it arrives with a value the submission is **silently dropped**: the caller
+gets a normal-looking success response with a reference that corresponds to
+nothing, so a bot has no signal to tune against. Nothing is written.
+
+**2. Cloudflare Turnstile** — `src/lib/spam/turnstile.ts`, verified server-side
+against `siteverify`. It **fails closed**: once `TURNSTILE_SECRET_KEY` is set,
+a missing, malformed, expired or rejected token is refused, and so is a
+submission where Cloudflare cannot be reached. With no secret set the check is
+skipped, so the site works before Turnstile is configured.
+
+Only `NEXT_PUBLIC_TURNSTILE_SITE_KEY` reaches the browser. The secret has no
+`NEXT_PUBLIC_` prefix, so Next.js never inlines it into client JavaScript.
+
+### Rate limiting — not implemented, recommended options
+
+Neither honeypot nor Turnstile stops a determined attacker replaying valid
+tokens, so a rate limit is still worth adding. **In-memory counters are not an
+option**: Vercel runs multiple isolated instances that share no memory, so a
+per-instance counter is trivially bypassed and resets constantly.
+
+Recommended, in order:
+
+1. **Vercel WAF rate limiting** — configure per-path limits in the Vercel
+   dashboard. No code, no extra service, no new dependency. Best fit if the
+   site is deployed to Vercel.
+2. **Upstash Redis + `@upstash/ratelimit`** — the usual durable choice, has a
+   free tier, but it is an external service and a new dependency. Not added
+   without approval.
+3. **A Postgres counter in Supabase** — a `SECURITY DEFINER` function that
+   records a hashed IP with a timestamp and rejects bursts. No new vendor, but
+   it adds a write per submission and needs careful RLS.
+
+### TLS interception and `npm run dev`
+
+`npm run dev` goes through `scripts/dev.mjs`, which adds Node's
+`--use-system-ca`. Security products that inspect HTTPS (Avast, Kaspersky,
+corporate proxies) re-sign traffic with a private root CA that Windows trusts
+but Node's bundled CA list does not — without this, server-side Supabase calls
+fail with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` while the browser works fine. It is
+a no-op on machines without interception. Use `npm run dev:plain` for stock
+`next dev`.
+
 ## Driver portal theming
 
 The portal is a dark enterprise scope layered on the same component library.

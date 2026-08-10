@@ -490,6 +490,68 @@ model EmergencyAlert {
   @@index([driverId, raisedAt])
 }
 
+// ------------------------------------------------- public website submissions
+//
+// These two tables are LIVE in Supabase (project boazgroupltd) — unlike the
+// rest of this schema, which is still the target model behind the mock
+// repository. They are declared here so the schema stays a complete
+// description of the database.
+//
+// Field types mirror the SQL exactly: `status` and `source` are text with
+// CHECK constraints rather than Postgres enums, so they are String here.
+//
+// Access model: RLS allows INSERT for the anon role and nothing else. Reading
+// either table requires the service role.
+
+model QuoteRequest {
+  id        String @id @default(uuid()) @db.Uuid
+  reference String @unique
+
+  originCity         String @map("origin_city")
+  destinationCountry String @map("destination_country")
+  destinationCity    String @map("destination_city")
+  service            String
+
+  cargoType        String  @map("cargo_type")
+  cargoDescription String  @map("cargo_description")
+  weightKg         Decimal @map("weight_kg") @db.Decimal(12, 2)
+  unitCount        Int?    @map("unit_count")
+  readyDate        DateTime @map("ready_date") @db.Date
+  needsCustoms     String  @map("needs_customs")
+
+  contactName      String @map("contact_name")
+  companyName      String @map("company_name")
+  email            String
+  phone            String
+  preferredContact String @map("preferred_contact")
+  notes            String?
+
+  status    String   @default("new")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("quote_requests")
+}
+
+model ContactSubmission {
+  id        String @id @default(uuid()) @db.Uuid
+  reference String @unique
+
+  name    String
+  email   String
+  phone   String?
+  company String?
+  subject String?
+  message String
+
+  status      String   @default("new")
+  source      String   @default("website_contact_form")
+  submittedAt DateTime @default(now()) @map("submitted_at")
+
+  @@index([submittedAt])
+  @@map("contact_submissions")
+}
+
 // ---------------------------------------------------------------- public tracking
 
 model Shipment {

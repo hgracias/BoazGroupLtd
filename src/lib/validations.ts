@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { cleanEmail, cleanLine, cleanPhone, cleanText } from "@/lib/sanitize";
+
 // Must stay in step with Currency in src/lib/data/types.ts.
 const currencyEnum = z.enum(["TZS", "KES", "RWF", "BIF", "UGX", "CDF", "USD"]);
 
@@ -104,17 +106,52 @@ export const quoteSchema = quoteStepOneSchema
   .merge(quoteStepThreeSchema);
 export type QuoteValues = z.infer<typeof quoteSchema>;
 
+export const CONTACT_SUBJECTS = [
+  "quote",
+  "tracking",
+  "customs",
+  "warehousing",
+  "careers",
+  "other",
+] as const;
+
+/**
+ * Contact form. Every string is sanitised before the length rules run, so a
+ * message padded with zero-width characters cannot slip past the limits.
+ */
 export const contactSchema = z.object({
-  name: z.string().min(2, "Enter your name"),
-  email: z.string().email("Enter a valid email address"),
-  phone: z.string().max(32).optional().or(z.literal("")),
-  subject: z.enum(["quote", "tracking", "customs", "warehousing", "careers", "other"], {
+  name: z
+    .string()
+    .transform(cleanLine)
+    .pipe(z.string().min(2, "Enter your name").max(120, "That name is too long")),
+  email: z
+    .string()
+    .transform(cleanEmail)
+    .pipe(z.string().email("Enter a valid email address").max(254)),
+  phone: z
+    .string()
+    .transform(cleanPhone)
+    .pipe(z.string().max(40, "That phone number is too long"))
+    .optional()
+    .or(z.literal("")),
+  company: z
+    .string()
+    .transform(cleanLine)
+    .pipe(z.string().max(160, "That company name is too long"))
+    .optional()
+    .or(z.literal("")),
+  subject: z.enum(CONTACT_SUBJECTS, {
     errorMap: () => ({ message: "Choose what this is about" }),
   }),
   message: z
     .string()
-    .min(10, "Tell us a little more (at least 10 characters)")
-    .max(2000, "Keep the message under 2000 characters"),
+    .transform(cleanText)
+    .pipe(
+      z
+        .string()
+        .min(10, "Tell us a little more (at least 10 characters)")
+        .max(2000, "Keep the message under 2000 characters")
+    ),
 });
 export type ContactValues = z.infer<typeof contactSchema>;
 

@@ -7,6 +7,13 @@ import { useForm } from "react-hook-form";
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, Send } from "lucide-react";
 
 import { Field, FormBanner } from "@/components/driver/field";
+import { HoneypotField } from "@/components/marketing/honeypot-field";
+import {
+  TurnstileWidget,
+  type TurnstileHandle,
+} from "@/components/marketing/turnstile-widget";
+import { HONEYPOT_FIELD } from "@/lib/spam/honeypot";
+import { TURNSTILE_FIELD, isTurnstileClientEnabled } from "@/lib/spam/turnstile-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -62,6 +69,11 @@ export function QuoteForm({
   const [pending, startTransition] = React.useTransition();
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [reference, setReference] = React.useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = React.useState("");
+  const turnstileRef = React.useRef<TurnstileHandle>(null);
+  const honeypotRef = React.useRef<HTMLInputElement>(null);
+  const onFinalStep = step === STEPS.length - 1;
+  const awaitingChallenge = isTurnstileClientEnabled() && onFinalStep && !turnstileToken;
 
   const {
     register,
@@ -96,11 +108,16 @@ export function QuoteForm({
     Object.entries(values).forEach(([key, value]) => {
       formData.append(key, value == null ? "" : String(value));
     });
+    // Honeypot stays empty for real people; the widget supplies the token.
+    formData.append(HONEYPOT_FIELD, honeypotRef.current?.value ?? "");
+    formData.append(TURNSTILE_FIELD, turnstileToken);
 
     startTransition(async () => {
       const result = await submitQuoteAction(formData);
       if (!result.ok) {
         setServerError(result.error);
+        // A token is single-use — get a fresh one before the next attempt.
+        turnstileRef.current?.reset();
         return;
       }
       setReference(result.reference);
@@ -178,7 +195,7 @@ export function QuoteForm({
         })}
       </ol>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="relative mt-8 space-y-5" noValidate>
         {serverError ? <FormBanner tone="error">{serverError}</FormBanner> : null}
 
         {step === 0 ? (
@@ -355,6 +372,11 @@ export function QuoteForm({
           </>
         ) : null}
 
+        <HoneypotField ref={honeypotRef} />
+        {onFinalStep ? (
+          <TurnstileWidget ref={turnstileRef} action="quote" onToken={setTurnstileToken} />
+        ) : null}
+
         <div className="flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:justify-between">
           <Button
             type="button"
@@ -373,11 +395,23 @@ export function QuoteForm({
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           ) : (
-            <Button type="submit" variant="gold" size="lg" disabled={pending}>
+            <Button
+              type="submit"
+              variant="gold"
+              size="lg"
+              // Blocked until the anti-spam check has issued a token, so a
+              // quick click cannot produce a confusing rejection.
+              disabled={pending || awaitingChallenge}
+            >
               {pending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                   Sending…
+                </>
+              ) : awaitingChallenge ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  Checking you are human…
                 </>
               ) : (
                 <>

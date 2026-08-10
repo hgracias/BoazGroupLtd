@@ -10,7 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { HoneypotField } from "@/components/marketing/honeypot-field";
+import {
+  TurnstileWidget,
+  type TurnstileHandle,
+} from "@/components/marketing/turnstile-widget";
 import { submitContactAction } from "@/app/(marketing)/actions";
+import { HONEYPOT_FIELD } from "@/lib/spam/honeypot";
+import { TURNSTILE_FIELD, isTurnstileClientEnabled } from "@/lib/spam/turnstile-client";
 import { contactSchema, type ContactValues } from "@/lib/validations";
 
 const SUBJECTS: { value: ContactValues["subject"]; label: string }[] = [
@@ -26,6 +33,11 @@ export function ContactForm() {
   const [pending, startTransition] = React.useTransition();
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [reference, setReference] = React.useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = React.useState("");
+  const turnstileRef = React.useRef<TurnstileHandle>(null);
+  const honeypotRef = React.useRef<HTMLInputElement>(null);
+  // Blocked until the anti-spam check has issued a token.
+  const awaitingChallenge = isTurnstileClientEnabled() && !turnstileToken;
 
   const {
     register,
@@ -43,15 +55,21 @@ export function ContactForm() {
     Object.entries(values).forEach(([key, value]) => {
       formData.append(key, value == null ? "" : String(value));
     });
+    // Honeypot stays empty for real people; the widget supplies the token.
+    formData.append(HONEYPOT_FIELD, honeypotRef.current?.value ?? "");
+    formData.append(TURNSTILE_FIELD, turnstileToken);
 
     startTransition(async () => {
       const result = await submitContactAction(formData);
       if (!result.ok) {
         setServerError(result.error);
+        // A token is single-use — get a fresh one before the next attempt.
+        turnstileRef.current?.reset();
         return;
       }
       setReference(result.reference);
       reset();
+      turnstileRef.current?.reset();
     });
   }
 
@@ -76,7 +94,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-5" noValidate>
       {serverError ? <FormBanner tone="error">{serverError}</FormBanner> : null}
 
       <div className="grid gap-5 sm:grid-cols-2">
@@ -112,11 +130,19 @@ export function ContactForm() {
         />
       </Field>
 
-      <Button type="submit" size="lg" disabled={pending}>
+      <HoneypotField ref={honeypotRef} />
+      <TurnstileWidget ref={turnstileRef} action="contact" onToken={setTurnstileToken} />
+
+      <Button type="submit" size="lg" disabled={pending || awaitingChallenge}>
         {pending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             Sending…
+          </>
+        ) : awaitingChallenge ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            Checking you are human…
           </>
         ) : (
           <>

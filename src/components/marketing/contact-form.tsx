@@ -46,7 +46,14 @@ export function ContactForm() {
     formState: { errors },
   } = useForm<ContactValues>({
     resolver: zodResolver(contactSchema),
-    defaultValues: { subject: "quote", name: "", email: "", phone: "", message: "" },
+    defaultValues: {
+      subject: "quote",
+      name: "",
+      email: "",
+      phone: "",
+      company: "",
+      message: "",
+    },
   });
 
   function onSubmit(values: ContactValues) {
@@ -120,6 +127,20 @@ export function ContactForm() {
           </Select>
         </Field>
       </div>
+
+      <Field
+        id="company"
+        label="Company / Organization"
+        optional
+        error={errors.company?.message}
+      >
+        <Input
+          id="company"
+          autoComplete="organization"
+          placeholder="Who are you enquiring on behalf of?"
+          {...register("company")}
+        />
+      </Field>
 
       <Field id="message" label="Message" error={errors.message?.message}>
         <Textarea

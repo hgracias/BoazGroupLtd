@@ -18,6 +18,41 @@ const SAVE_FAILED =
   "We could not save your request just now. Please call the operations desk, or try again in a moment.";
 const CHALLENGE_FAILED =
   "We could not confirm you are human. Refresh the page and try again, or call the operations desk.";
+const UNAVAILABLE =
+  "We're unable to process your request right now. Please try again later.";
+
+/**
+ * Storage policy.
+ *
+ * In production a submission is only ever answered "ok" if it reached the
+ * database. If Supabase is not configured there, the request is refused and
+ * the misconfiguration is logged server-side — silently keeping a customer's
+ * enquiry in a process that will be recycled minutes later would lose real
+ * business.
+ *
+ * Outside production the in-memory store still backs the forms so a bare
+ * checkout and CI keep working without credentials.
+ */
+type Storage = { kind: "database" } | { kind: "memory" } | { kind: "unavailable" };
+
+function storageFor(form: "quote" | "contact"): Storage {
+  if (isSupabaseConfigured()) return { kind: "database" };
+
+  if (process.env.NODE_ENV === "production") {
+    console.error(
+      `[${form}] CONFIGURATION ERROR: Supabase is not configured in production. ` +
+        "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY. " +
+        "The submission was refused and nothing was stored."
+    );
+    return { kind: "unavailable" };
+  }
+
+  console.warn(
+    `[${form}] Supabase not configured — using the in-memory store. ` +
+      "This fallback is for local development and CI only."
+  );
+  return { kind: "memory" };
+}
 
 function toObject(formData: FormData) {
   return Object.fromEntries(formData.entries());
@@ -77,7 +112,12 @@ export async function submitQuoteAction(formData: FormData): Promise<SubmitResul
     };
   }
 
-  if (isSupabaseConfigured()) {
+  const storage = storageFor("quote");
+  if (storage.kind === "unavailable") {
+    return { ok: false, error: UNAVAILABLE };
+  }
+
+  if (storage.kind === "database") {
     const saved = await saveQuoteRequest(parsed.data);
     // The underlying database error is logged server-side, never returned.
     return saved.ok
@@ -85,7 +125,6 @@ export async function submitQuoteAction(formData: FormData): Promise<SubmitResul
       : { ok: false, error: SAVE_FAILED };
   }
 
-  // No Supabase configured (bare checkout or CI): keep the form working.
   const lead = await recordQuoteRequest(parsed.data);
   return { ok: true, reference: lead.reference };
 }
@@ -107,7 +146,12 @@ export async function submitContactAction(formData: FormData): Promise<SubmitRes
     };
   }
 
-  if (isSupabaseConfigured()) {
+  const storage = storageFor("contact");
+  if (storage.kind === "unavailable") {
+    return { ok: false, error: UNAVAILABLE };
+  }
+
+  if (storage.kind === "database") {
     const saved = await saveContactSubmission(parsed.data);
     return saved.ok
       ? { ok: true, reference: saved.reference }

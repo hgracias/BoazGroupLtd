@@ -129,9 +129,21 @@ npx supabase gen types typescript --project-id iouiuvgyzujvrkyjihvg
 | `quote_requests` | `/quote` | `BGL-Q-YYYY-XXXXX` |
 | `contact_submissions` | `/contact` | `BGL-M-YYYY-XXXXX` |
 
-Both are insert-only for `anon`, both generate their reference in the
-application, and both fall back to the in-memory store when Supabase is not
-configured so a bare checkout still works.
+Both are insert-only for `anon` and both generate their reference in the
+application.
+
+### Storage policy: memory fallback is development-only
+
+| `NODE_ENV` | Supabase configured | Behaviour |
+| --- | --- | --- |
+| any | yes | Written to Postgres. Success is returned only after the insert succeeds. |
+| development / test | no | Falls back to the in-memory store, with a server warning. Lets a bare checkout and CI run without credentials. |
+| **production** | **no** | **Submission is refused.** A configuration error is logged server-side and the visitor sees *"We're unable to process your request right now. Please try again later."* |
+
+Production never silently accepts a submission it did not persist — an
+enquiry held in a serverless process that is recycled minutes later is a lost
+customer, not a saved one. The message shown to the browser carries no
+database or configuration detail.
 
 ## Spam protection
 

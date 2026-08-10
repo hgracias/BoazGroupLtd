@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Paperclip, Plus } from "lucide-react";
 
+import { CurrencyTotals } from "@/components/driver/currency-totals";
 import { FormBanner } from "@/components/driver/field";
 import { EmptyState, PortalHeader } from "@/components/driver/portal-ui";
 import { Badge } from "@/components/ui/badge";
@@ -49,20 +50,14 @@ export default async function ExpensesPage({
     listExpenses({ driverId: driver.id, status: status || undefined }),
   ]);
 
-  const totals = {
-    pending: all
-      .filter((expense) => expense.status === "PENDING")
-      .reduce((sum, expense) => sum + expense.amountTzs, 0),
-    approved: all
-      .filter((expense) => expense.status === "APPROVED")
-      .reduce((sum, expense) => sum + expense.amountTzs, 0),
-  };
+  const pendingExpenses = all.filter((expense) => expense.status === "PENDING");
+  const approvedExpenses = all.filter((expense) => expense.status === "APPROVED");
 
   return (
     <div>
       <PortalHeader
         title="Expense reports"
-        description="Submitted in the currency you paid; totals are converted to TZS at the rate saved with each claim."
+        description="Logged in the currency you actually paid. Totals are grouped per currency — nothing is converted unless a rate is configured for it."
         action={
           <Button asChild size="touch">
             <Link href="/driver/expenses/new">
@@ -81,26 +76,8 @@ export default async function ExpensesPage({
         ) : null}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
-            <CardContent className="p-5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Pending approval
-              </p>
-              <p className="mt-2 font-display text-2xl font-semibold text-foreground">
-                {formatTzs(totals.pending)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Approved to date
-              </p>
-              <p className="mt-2 font-display text-2xl font-semibold text-foreground">
-                {formatTzs(totals.approved)}
-              </p>
-            </CardContent>
-          </Card>
+          <CurrencyTotals label="Pending approval" expenses={pendingExpenses} />
+          <CurrencyTotals label="Approved to date" expenses={approvedExpenses} />
         </div>
 
         <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-2">
@@ -144,7 +121,9 @@ export default async function ExpensesPage({
                         </p>
                         {expense.currency !== "TZS" ? (
                           <p className="text-xs text-muted-foreground">
-                            ≈ {formatTzs(expense.amountTzs)}
+                            {expense.amountTzs !== undefined
+                              ? `≈ ${formatTzs(expense.amountTzs)}`
+                              : "No TZS rate configured"}
                           </p>
                         ) : null}
                       </div>
@@ -183,7 +162,7 @@ export default async function ExpensesPage({
                       <TableHead>Category</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead className="text-right">Amount</TableHead>
-                      <TableHead className="text-right">In TZS</TableHead>
+                      <TableHead className="text-right">Indicative TZS</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Receipt</TableHead>
                     </TableRow>
@@ -209,7 +188,7 @@ export default async function ExpensesPage({
                           {formatMoney(expense.amount, expense.currency)}
                         </TableCell>
                         <TableCell className="whitespace-nowrap text-right text-muted-foreground">
-                          {formatTzs(expense.amountTzs)}
+                          {expense.amountTzs !== undefined ? formatTzs(expense.amountTzs) : "—"}
                         </TableCell>
                         <TableCell>
                           <Badge variant={approvalBadgeVariant[expense.status]}>

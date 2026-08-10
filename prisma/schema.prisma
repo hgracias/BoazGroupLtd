@@ -65,6 +65,8 @@ enum Currency {
   RWF
   BIF
   UGX
+  CDF
+  USD
 }
 
 enum ApprovalStatus {
@@ -328,10 +330,11 @@ model ExpenseReport {
   amount      Float
   currency    Currency
 
-  // Multi-currency: the rate is captured at submission so historical
-  // totals never shift when rates move.
-  rateToTzs   Float
-  amountTzs   Float
+  // Multi-currency: amount + currency are the record of truth. An indicative
+  // TZS rate is captured at submission so historical figures never shift, and
+  // is null for currencies with no configured rate (CDF, USD).
+  rateToTzs   Float?
+  amountTzs   Float?
 
   receiptUrl  String?
   status      ApprovalStatus @default(PENDING)

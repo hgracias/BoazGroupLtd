@@ -430,7 +430,11 @@ export function createSeed(): SeedData {
     input: Omit<ExpenseReport, "rateToTzs" | "amountTzs">
   ): ExpenseReport => {
     const rate = rateToTzs(input.currency);
-    return { ...input, rateToTzs: rate, amountTzs: Math.round(input.amount * rate) };
+    return {
+      ...input,
+      rateToTzs: rate,
+      amountTzs: rate === undefined ? undefined : Math.round(input.amount * rate),
+    };
   };
 
   const expenseReports: ExpenseReport[] = [
@@ -539,6 +543,31 @@ export function createSeed(): SeedData {
       reviewedById: "adm_1",
       driverId: "drv_4",
       createdAt: at(9, 12, 30),
+    }),
+    // Currencies with no configured TZS rate — these stay in CDF/USD.
+    expense({
+      id: "exp_10",
+      spentAt: at(1, 11, 30),
+      category: "BORDER_FEES",
+      description: "Grande Barrière crossing fee, Goma side",
+      amount: 145_000,
+      currency: "CDF",
+      status: "PENDING",
+      driverId: "drv_1",
+      createdAt: at(1, 11, 45),
+    }),
+    expense({
+      id: "exp_11",
+      spentAt: at(4, 19, 0),
+      category: "FOOD_LODGING",
+      description: "Overnight lodging paid in US dollars",
+      amount: 45,
+      currency: "USD",
+      status: "APPROVED",
+      reviewedAt: at(3, 10),
+      reviewedById: "adm_1",
+      driverId: "drv_1",
+      createdAt: at(4, 19, 20),
     }),
     expense({
       id: "exp_9",

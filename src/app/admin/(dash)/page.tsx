@@ -5,7 +5,7 @@ import { ExpenseTable } from "@/components/admin/expense-table";
 import { EmptyState } from "@/components/driver/portal-ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatTzs } from "@/lib/currency";
+import { formatMoney, totalsByCurrency } from "@/lib/currency";
 import {
   decorateWithDriver,
   listClockRecords,
@@ -28,7 +28,8 @@ export default async function AdminOverviewPage() {
   ]);
 
   const pending = await decorateWithDriver(pendingRaw);
-  const pendingTotal = pending.reduce((sum, expense) => sum + expense.amountTzs, 0);
+  // Grouped per currency — see src/lib/currency.ts on why these are not added.
+  const pendingTotals = totalsByCurrency(pending);
   const onDuty = drivers.filter((driver) => driver.dutyStatus === "ON_DUTY").length;
   const openShifts = clockRecords.filter((record) => !record.clockOutAt).length;
   const inWorkshop = trucks.filter((truck) => truck.status === "IN_MAINTENANCE").length;
@@ -49,7 +50,13 @@ export default async function AdminOverviewPage() {
           icon={<Receipt className="h-5 w-5" aria-hidden="true" />}
           label="Expenses pending"
           value={String(pending.length)}
-          detail={formatTzs(pendingTotal)}
+          detail={
+            pendingTotals.length
+              ? pendingTotals
+                  .map((entry) => formatMoney(entry.total, entry.currency))
+                  .join(" · ")
+              : "nothing pending"
+          }
         />
         <StatCard
           icon={<Users className="h-5 w-5" aria-hidden="true" />}

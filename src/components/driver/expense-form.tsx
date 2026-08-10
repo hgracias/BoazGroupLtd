@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createExpenseAction } from "@/app/driver/actions";
-import { CURRENCIES, RATES_TO_TZS, formatTzs } from "@/lib/currency";
+import { CURRENCIES, formatTzs, rateToTzs } from "@/lib/currency";
 import { expenseCategoryLabels } from "@/lib/format";
 import { expenseSchema, type ExpenseValues } from "@/lib/validations";
 
@@ -51,10 +51,20 @@ export function ExpenseForm({
 
   const amount = watch("amount");
   const currency = watch("currency");
+  const rate = currency ? rateToTzs(currency) : undefined;
   const converted =
-    currency && currency !== "TZS" && Number(amount) > 0
-      ? Math.round(Number(amount) * RATES_TO_TZS[currency])
+    currency && currency !== "TZS" && rate !== undefined && Number(amount) > 0
+      ? Math.round(Number(amount) * rate)
       : null;
+
+  // Unrated currencies are stored exactly as entered — say so rather than
+  // implying a conversion happened.
+  const amountHint =
+    converted !== null
+      ? `≈ ${formatTzs(converted)} at today's indicative rate`
+      : currency && currency !== "TZS" && rate === undefined
+        ? `Recorded in ${currency}. No TZS rate is configured, so no conversion is applied.`
+        : undefined;
 
   function onSubmit(values: ExpenseValues) {
     setServerError(null);
@@ -103,12 +113,7 @@ export function ExpenseForm({
       </div>
 
       <div className="grid gap-5 sm:grid-cols-[1fr_auto]">
-        <Field
-          id="amount"
-          label="Amount"
-          error={errors.amount?.message}
-          hint={converted ? `≈ ${formatTzs(converted)} at today's indicative rate` : undefined}
-        >
+        <Field id="amount" label="Amount" error={errors.amount?.message} hint={amountHint}>
           <Input
             id="amount"
             type="number"
@@ -121,11 +126,16 @@ export function ExpenseForm({
           />
         </Field>
 
-        <Field id="currency" label="Currency" error={errors.currency?.message}>
-          <Select id="currency" className="sm:w-44" {...register("currency")}>
+        <Field
+          id="currency"
+          label="Currency"
+          error={errors.currency?.message}
+          hint="The currency you actually paid in."
+        >
+          <Select id="currency" className="sm:w-52" {...register("currency")}>
             {CURRENCIES.map((item) => (
               <option key={item.code} value={item.code}>
-                {item.code} — {item.country}
+                {item.code} — {item.label}
               </option>
             ))}
           </Select>

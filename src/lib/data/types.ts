@@ -25,7 +25,7 @@ export type ExpenseCategory =
   | "REPAIRS"
   | "OTHER";
 
-export type Currency = "TZS" | "KES" | "RWF" | "BIF" | "UGX";
+export type Currency = "TZS" | "KES" | "RWF" | "BIF" | "UGX" | "CDF" | "USD";
 
 export type ApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
 
@@ -165,11 +165,16 @@ export type ExpenseReport = {
   spentAt: string;
   category: ExpenseCategory;
   description: string;
+  /** Amount and currency are the record of truth — never assume TZS. */
   amount: number;
   currency: Currency;
-  /** Rate captured at submission so historical totals never shift. */
-  rateToTzs: number;
-  amountTzs: number;
+  /**
+   * Indicative TZS rate captured at submission so historical figures never
+   * shift. Absent when no rate is configured for the currency (CDF, USD),
+   * in which case the expense is simply held in its own currency.
+   */
+  rateToTzs?: number;
+  amountTzs?: number;
   receiptUrl?: string;
   status: ApprovalStatus;
   reviewNote?: string;

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-const currencyEnum = z.enum(["TZS", "KES", "RWF", "BIF", "UGX"]);
+// Must stay in step with Currency in src/lib/data/types.ts.
+const currencyEnum = z.enum(["TZS", "KES", "RWF", "BIF", "UGX", "CDF", "USD"]);
 
 export const loginSchema = z.object({
   employeeId: z

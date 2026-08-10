@@ -131,7 +131,7 @@ export function ExpenseSummaryCard({ expense }: { expense: ExpenseReport | null 
           <p className="font-display text-2xl font-semibold tracking-tight text-foreground">
             {formatMoney(expense.amount, expense.currency)}
           </p>
-          {expense.currency !== "TZS" ? (
+          {expense.currency !== "TZS" && expense.amountTzs !== undefined ? (
             <p className="text-xs text-muted-foreground">≈ {formatTzs(expense.amountTzs)}</p>
           ) : null}
           <p className={cn("mt-1.5 text-xs font-semibold", tone)}>

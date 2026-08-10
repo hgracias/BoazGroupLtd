@@ -139,10 +139,10 @@ export function MaintenanceForm({
         </Field>
 
         <Field id="costCurrency" label="Currency" error={errors.costCurrency?.message}>
-          <Select id="costCurrency" className="sm:w-40" {...register("costCurrency")}>
+          <Select id="costCurrency" className="sm:w-52" {...register("costCurrency")}>
             {CURRENCIES.map((currency) => (
               <option key={currency.code} value={currency.code}>
-                {currency.code} — {currency.country}
+                {currency.code} — {currency.label}
               </option>
             ))}
           </Select>

@@ -257,13 +257,15 @@ export async function createExpense(input: {
   currency: Currency;
   receiptUrl?: string;
 }) {
+  // Unrated currencies (CDF, USD) are stored as submitted, with no
+  // conversion — see INDICATIVE_RATES_TO_TZS.
   const rate = rateToTzs(input.currency);
   const record: ExpenseReport = {
     id: id("exp"),
     createdAt: new Date().toISOString(),
     status: "PENDING",
     rateToTzs: rate,
-    amountTzs: Math.round(input.amount * rate),
+    amountTzs: rate === undefined ? undefined : Math.round(input.amount * rate),
     ...input,
   };
   db().expenseReports.unshift(record);

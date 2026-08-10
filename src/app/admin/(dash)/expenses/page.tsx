@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ExpenseTable } from "@/components/admin/expense-table";
 import { EmptyState } from "@/components/driver/portal-ui";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatTzs } from "@/lib/currency";
+import { formatMoney, totalsByCurrency } from "@/lib/currency";
 import { decorateWithDriver, listExpenses } from "@/lib/data";
 import type { ApprovalStatus } from "@/lib/data/types";
 import { requireAdmin } from "@/lib/session";
@@ -29,7 +29,7 @@ export default async function AdminExpensesPage({
     : "";
 
   const rows = await decorateWithDriver(await listExpenses({ status: status || undefined }));
-  const total = rows.reduce((sum, expense) => sum + expense.amountTzs, 0);
+  const totals = totalsByCurrency(rows);
 
   return (
     <div className="space-y-6">
@@ -38,8 +38,12 @@ export default async function AdminExpensesPage({
           Expense submissions
         </h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          {rows.length} record{rows.length === 1 ? "" : "s"} · {formatTzs(total)} total in TZS
-          at the rate saved with each claim.
+          {rows.length} record{rows.length === 1 ? "" : "s"}, totalled by the currency each
+          was submitted in:{" "}
+          {totals.length
+            ? totals.map((entry) => formatMoney(entry.total, entry.currency)).join(" · ")
+            : "nothing recorded"}
+          .
         </p>
       </div>
 

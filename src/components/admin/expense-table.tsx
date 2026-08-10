@@ -29,8 +29,8 @@ export function ExpenseTable({ rows }: { rows: WithDriver<ExpenseReport>[] }) {
           <TableHead>Driver</TableHead>
           <TableHead>Category</TableHead>
           <TableHead>Description</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-          <TableHead className="text-right">In TZS</TableHead>
+          <TableHead className="text-right">Amount submitted</TableHead>
+          <TableHead className="text-right">Indicative TZS</TableHead>
           <TableHead>Receipt</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Review</TableHead>
@@ -61,10 +61,19 @@ export function ExpenseTable({ rows }: { rows: WithDriver<ExpenseReport>[] }) {
               {formatMoney(expense.amount, expense.currency)}
             </TableCell>
             <TableCell className="whitespace-nowrap text-right text-muted-foreground">
-              {formatTzs(expense.amountTzs)}
-              {expense.currency !== "TZS" ? (
-                <span className="block text-[11px]">@ {expense.rateToTzs}</span>
-              ) : null}
+              {expense.amountTzs !== undefined ? (
+                <>
+                  {formatTzs(expense.amountTzs)}
+                  {expense.currency !== "TZS" ? (
+                    <span className="block text-[11px]">@ {expense.rateToTzs}</span>
+                  ) : null}
+                </>
+              ) : (
+                <span title={`No TZS rate configured for ${expense.currency}`}>
+                  —
+                  <span className="block text-[11px]">no rate</span>
+                </span>
+              )}
             </TableCell>
             <TableCell>
               {expense.receiptUrl ? (

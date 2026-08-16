@@ -41,7 +41,7 @@ export function MobileSidebarDrawer({
           <Dialog.Close asChild>
             <button
               type="button"
-              className="absolute right-3 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
+              className="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
               aria-label="Close navigation menu"
             >
               <X className="h-5 w-5" aria-hidden="true" />

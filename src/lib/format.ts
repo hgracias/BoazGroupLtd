@@ -14,7 +14,25 @@ import type {
   TripStatus,
 } from "@/lib/data/types";
 
-export const dateOnly = (iso: string) => format(new Date(iso), "d MMM yyyy");
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * Parses a value that may be a full ISO timestamp or a bare `YYYY-MM-DD` from
+ * a date input.
+ *
+ * `new Date("2026-09-10")` is parsed as UTC midnight, which then renders as
+ * the *previous* day for anyone west of Greenwich. A calendar date the user
+ * picked has no timezone, so it must be built in local time.
+ */
+export function parseDateInput(value: string): Date {
+  if (DATE_ONLY.test(value)) {
+    const [year, month, day] = value.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+  return new Date(value);
+}
+
+export const dateOnly = (iso: string) => format(parseDateInput(iso), "d MMM yyyy");
 export const dateTime = (iso: string) => format(new Date(iso), "d MMM yyyy, HH:mm");
 export const timeOnly = (iso: string) => format(new Date(iso), "HH:mm");
 export const isoDateInput = (iso: string) => format(new Date(iso), "yyyy-MM-dd");

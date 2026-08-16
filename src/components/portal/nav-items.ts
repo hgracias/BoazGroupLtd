@@ -8,7 +8,6 @@ import {
   MessagesSquare,
   Receipt,
   Route,
-  ShieldAlert,
   Truck,
   Wallet,
   Wrench,
@@ -63,13 +62,11 @@ export const portalNav: PortalNavGroup[] = [
       { href: "/driver/leave", label: "Leave Requests", icon: CalendarDays },
     ],
   },
-  {
-    label: "Urgent",
-    items: [
-      { href: "/driver/emergency", label: "Emergency (SOS)", icon: ShieldAlert, tone: "danger" },
-    ],
-  },
 ];
+
+// Emergency is deliberately not a nav entry. The SOS control lives on the
+// dashboard, where it is visible without opening a menu — /driver/emergency
+// remains reachable directly for the contacts and alert history.
 
 export function isNavItemActive(pathname: string, item: PortalNavItem) {
   return item.exact

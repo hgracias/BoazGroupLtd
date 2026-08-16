@@ -81,6 +81,8 @@ export async function clockOutAction(formData: FormData): Promise<ActionResult> 
 
   revalidatePath("/driver");
   revalidatePath("/driver/clock");
+  // Clocking out can raise the truck's odometer.
+  revalidatePath("/driver/vehicle");
   return { ok: true, message: "Clocked out. Shift recorded." };
 }
 
@@ -119,6 +121,8 @@ export async function createMaintenanceAction(formData: FormData): Promise<Actio
 
   revalidatePath("/driver/maintenance");
   revalidatePath("/driver");
+  // The vehicle page shows the same odometer and workshop history.
+  revalidatePath("/driver/vehicle");
   revalidatePath("/admin");
   return { ok: true, message: "Maintenance record saved." };
 }

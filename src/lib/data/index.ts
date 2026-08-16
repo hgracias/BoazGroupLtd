@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 
 import { rateToTzs } from "@/lib/currency";
+import { parseDateInput } from "@/lib/format";
 import { createSeed, type SeedData } from "@/lib/data/seed";
 import type {
   Admin,
@@ -376,8 +377,10 @@ export async function createLeaveRequest(input: {
   endDate: string;
   reason?: string;
 }) {
-  const start = new Date(input.startDate);
-  const end = new Date(input.endDate);
+  // Date inputs are calendar dates with no timezone — parse them locally so
+  // the stored value renders as the day the driver actually picked.
+  const start = parseDateInput(input.startDate);
+  const end = parseDateInput(input.endDate);
   if (end.getTime() < start.getTime()) {
     return { ok: false as const, error: "The end date cannot be before the start date." };
   }
